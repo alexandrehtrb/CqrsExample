@@ -1,0 +1,347 @@
+{
+	"info": {
+		"_postman_id": "e53dd0e7-b717-4d4c-b931-6c2afe1ddc7c",
+		"name": "Shopping List API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create List",
+			"item": [
+				{
+					"name": "Create List - Validation Errors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return an invalid title error\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(1);\r",
+									"    pm.expect(jsonData[0].code).to.eql(\"SHOPPING_LIST_INVALID_BLANK_TITLE\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create List - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return the created shopping list\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.be.string;\r",
+									"    pm.expect(jsonData.id).to.have.lengthOf(36);\r",
+									"    pm.expect(jsonData.title).to.eql(\"My shopping list\");\r",
+									"    pm.expect(jsonData.items).to.have.lengthOf(0);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"CreatedShoppingListId\", jsonData.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"My shopping list\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update List",
+			"item": [
+				{
+					"name": "Update List - Validation Errors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return all validation errors found when updating the list\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(5);\r",
+									"    pm.expect(jsonData[0].code).to.eql(\"SHOPPING_LIST_INVALID_BLANK_TITLE\");\r",
+									"    pm.expect(jsonData[1].code).to.eql(\"SHOPPING_LIST_BLANK_ITEM_NAME\");\r",
+									"    pm.expect(jsonData[2].code).to.eql(\"SHOPPING_LIST_ITEM_QTY_ZERO_OR_LESS\");\r",
+									"    pm.expect(jsonData[3].code).to.eql(\"SHOPPING_LIST_ITEM_QTY_ZERO_OR_LESS\");\r",
+									"    pm.expect(jsonData[3].message).to.eql(\"The item quantity must be greater than zero (item name: Rice 5kg).\");\r",
+									"    pm.expect(jsonData[4].code).to.eql(\"SHOPPING_LIST_NO_REPEATED_ITEMS\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"\",\r\n    \"items\": [\r\n        { \"quantity\": 0, \"itemName\": \"Rice 5kg\" },\r\n        { \"quantity\": 2, \"itemName\": \"  \" },\r\n        { \"quantity\": 0, \"itemName\": \"Rice 5kg\" }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}/{{CreatedShoppingListId}}",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							],
+							"path": [
+								"{{CreatedShoppingListId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update List - Not Found Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return that the list could not be found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(1);\r",
+									"    pm.expect(jsonData[0].code).to.eql(\"SHOPPING_LIST_NOT_FOUND\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}/10000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							],
+							"path": [
+								"10000000-0000-0000-0000-000000000000"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update List - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return that the list was updated\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": [\r\n        { \"quantity\": 1 , \"itemName\": \"Rice 5kg\" },\r\n        { \"quantity\": 2 , \"itemName\": \"Beans 1kg\" }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}/{{CreatedShoppingListId}}",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							],
+							"path": [
+								"{{CreatedShoppingListId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get List",
+			"item": [
+				{
+					"name": "Get List - Not Found Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return that the list could not be found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(1);\r",
+									"    pm.expect(jsonData[0].code).to.eql(\"SHOPPING_LIST_NOT_FOUND\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}/10000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							],
+							"path": [
+								"10000000-0000-0000-0000-000000000000"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get List - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Should return that the list could not be found\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    \r",
+									"    var createdShoppingListId = pm.collectionVariables.get(\"CreatedShoppingListId\");      \r",
+									"    pm.expect(jsonData.id).to.eql(createdShoppingListId);\r",
+									"    pm.expect(jsonData.title).to.eql(\"My shopping list\");\r",
+									"    pm.expect(jsonData.items).to.have.lengthOf(2);\r",
+									"    pm.expect(jsonData.items).to.deep.include({ quantity: 1, itemName: \"Rice 5kg\" });\r",
+									"    pm.expect(jsonData.items).to.deep.include({ quantity: 2, itemName: \"Beans 1kg\" });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseShoppingListApiUrl}}/{{CreatedShoppingListId}}",
+							"host": [
+								"{{BaseShoppingListApiUrl}}"
+							],
+							"path": [
+								"{{CreatedShoppingListId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "CreatedShoppingListId",
+			"value": ""
+		}
+	]
+}
