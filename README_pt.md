@@ -2,16 +2,16 @@
 
 [Read in english](README.md)
 
-Este projeto é um exemplo de uma API de lista de compras, com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS.
+Este projeto é um exemplo de uma API de lista de compras, com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
 
-A API é uma ASP NET WebAPI using .NET 5, com o mínimo possível de bibliotecas.
+A API é uma ASP NET WebAPI usando .NET 5, com o mínimo possível de bibliotecas.
 
 ## Padrões de arquitetura e conceitos de programação aplicados
 
 Os links são para estudos e referências de conhecimento.
 
 * Padrão CQRS [(link1)](https://docs.microsoft.com/pt-br/azure/architecture/patterns/cqrs) [(link2)](https://cqrs.wordpress.com/documents/cqrs-introduction/)
-* Padrão de notificações (notifications pattern) [(link)](https://www.martinfowler.com/eaaDev/Notification.html)
+* Padrão de notificações (notifications pattern) [(link)](https://martinfowler.com/articles/replaceThrowWithNotification.html)
 * Diretórios por funcionalidades (feature folders) [(link)](http://www.kamilgrzybek.com/design/feature-folders/)
 * Logs estruturados (structured logging) [(link)](https://messagetemplates.org/)
 * Tipos nuláveis e não-nuláveis [(link)](https://docs.microsoft.com/pt-br/dotnet/csharp/nullable-references)
@@ -25,6 +25,6 @@ O projeto requer apenas o [.NET 5](https://dotnet.microsoft.com/) instalado. A A
 
 O script `runserverlocal.ps1` compila o projeto e executa a API, ouvindo em `http://localhost:5000`.
 
-O script `rununittests.ps1` executa os testes unitários e gera um relatório de cobertura de testes na pasta `TestResults`.
+O script `rununittests.ps1` executa os testes unitários e gera um relatório de cobertura de testes na pasta `TestResults`. Requer o [ReportGenerator](https://github.com/danielpalme/ReportGenerator) instalado.
 
-Para rodar os testes de API, importar os arquivos de collection e environment do Postman que estão na pasta `tests` e depois iniciar o collection runner (tutorial [here](https://learning.postman.com/docs/running-collections/intro-to-collection-runs/)).
+Para rodar os testes de API, importar os arquivos de collection e environment do Postman que estão na pasta `tests` e depois iniciar o collection runner (tutorial [aqui](https://learning.postman.com/docs/running-collections/intro-to-collection-runs/)).
