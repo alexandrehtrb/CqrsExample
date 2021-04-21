@@ -34,7 +34,10 @@ namespace CqrsExample.Infrastructure.Features.Shopping.Repositories
                 foreach (PropertyInfo destinationPropInfo in typeof(A).GetProperties())
                 {
                     var sourcePropInfo = typeof(ShoppingList).GetProperty(destinationPropInfo.Name);
-                    destinationPropInfo.SetValue(instance, sourcePropInfo.GetValue(item));
+                    if (sourcePropInfo != null)
+                    {
+                        destinationPropInfo.SetValue(instance, sourcePropInfo.GetValue(item));
+                    }                    
                 }
                 return Task.FromResult((A?) instance);
             }
