@@ -14,7 +14,6 @@ using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace CqrsExample.Api.Features.Shopping
@@ -47,11 +46,8 @@ namespace CqrsExample.Api.Features.Shopping
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.InternalServerError)]
         [SwaggerRequestExample(typeof(CreateShoppingListCommand), typeof(CreateShoppingListRequestExample))]
-        [SwaggerResponse((int) HttpStatusCode.Created, Type = typeof(CreateShoppingListResult))]
         [SwaggerResponseExample((int) HttpStatusCode.Created, typeof(CreateShoppingListSuccessExample))]
-        [SwaggerResponse((int) HttpStatusCode.BadRequest, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.BadRequest, typeof(CreateShoppingListValidationErrorsExample))]
-        [SwaggerResponse((int) HttpStatusCode.InternalServerError, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.InternalServerError, typeof(CreateShoppingListInternalErrorsExample))]
         [Produces("application/json")]
         [Consumes("application/json")]
@@ -81,12 +77,8 @@ namespace CqrsExample.Api.Features.Shopping
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.InternalServerError)]
         [SwaggerRequestExample(typeof(UpdateShoppingListCommand), typeof(UpdateShoppingListRequestExample))]
-        [SwaggerResponse((int) HttpStatusCode.NoContent)]
-        [SwaggerResponse((int) HttpStatusCode.BadRequest, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.BadRequest, typeof(UpdateShoppingListValidationErrorsExample))]
-        [SwaggerResponse((int) HttpStatusCode.NotFound, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.NotFound, typeof(UpdateShoppingListNotFoundErrorsExample))]
-        [SwaggerResponse((int) HttpStatusCode.InternalServerError, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.InternalServerError, typeof(UpdateShoppingListInternalErrorsExample))]
         [Produces("application/json")]
         [Consumes("application/json")]
@@ -117,13 +109,9 @@ namespace CqrsExample.Api.Features.Shopping
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(Error[]), (int) HttpStatusCode.InternalServerError)]
-        [SwaggerResponse((int) HttpStatusCode.OK, Type = typeof(GetShoppingListResult))]
         [SwaggerResponseExample((int) HttpStatusCode.OK, typeof(GetShoppingListSuccessExample))]
-        [SwaggerResponse((int) HttpStatusCode.BadRequest, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.BadRequest, typeof(GetShoppingListValidationErrorsExample))]
-        [SwaggerResponse((int) HttpStatusCode.NotFound, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.NotFound, typeof(GetShoppingListNotFoundErrorsExample))]
-        [SwaggerResponse((int) HttpStatusCode.InternalServerError, Type = typeof(Error[]))]
         [SwaggerResponseExample((int) HttpStatusCode.InternalServerError, typeof(GetShoppingListInternalErrorsExample))]
         [Produces("application/json")]
         [Consumes("application/json")]
