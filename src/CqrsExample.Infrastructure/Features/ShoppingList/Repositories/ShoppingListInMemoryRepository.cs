@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using CqrsExample.Domain.Features.Shopping.Entities;
-using CqrsExample.Domain.Features.Shopping.Repositories;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
+using CqrsExample.Domain.Features.Shopping.Common.Repositories;
 
 namespace CqrsExample.Infrastructure.Features.Shopping.Repositories;
 
