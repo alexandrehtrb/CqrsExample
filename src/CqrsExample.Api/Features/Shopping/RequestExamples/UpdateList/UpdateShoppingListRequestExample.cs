@@ -1,4 +1,4 @@
-using CqrsExample.Domain.Features.Shopping.Entities;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Swashbuckle.AspNetCore.Filters;
 

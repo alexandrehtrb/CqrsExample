@@ -1,5 +1,5 @@
 using System;
-using CqrsExample.Domain.Features.Shopping.Entities;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using Swashbuckle.AspNetCore.Filters;
 

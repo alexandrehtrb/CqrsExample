@@ -1,6 +1,6 @@
 using System;
 using CqrsExample.Domain.Features.Shopping.CreateList;
-using CqrsExample.Domain.Features.Shopping.Entities;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace CqrsExample.Api.Features.Shopping.ResponseExamples.CreateList;

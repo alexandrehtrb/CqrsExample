@@ -1,4 +1,4 @@
-using CqrsExample.Domain.Features.Shopping.Repositories;
+using CqrsExample.Domain.Features.Shopping.Common.Repositories;
 using CqrsExample.Infrastructure.Features.Shopping.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
