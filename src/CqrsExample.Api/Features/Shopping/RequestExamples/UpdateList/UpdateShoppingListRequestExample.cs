@@ -2,19 +2,18 @@ using CqrsExample.Domain.Features.Shopping.Entities;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Swashbuckle.AspNetCore.Filters;
 
-namespace CqrsExample.Api.Features.Shopping.RequestExamples.UpdateList
+namespace CqrsExample.Api.Features.Shopping.RequestExamples.UpdateList;
+
+public class UpdateShoppingListRequestExample : IExamplesProvider<UpdateShoppingListCommand>
 {
-    public class UpdateShoppingListRequestExample : IExamplesProvider<UpdateShoppingListCommand>
-    {
-        public UpdateShoppingListCommand GetExamples() =>
-            new UpdateShoppingListCommand()
+    public UpdateShoppingListCommand GetExamples() =>
+        new()
+        {
+            Title = "My shopping list",
+            Items = new[]
             {
-                Title = "My shopping list",
-                Items = new []
-                {
-                    new ShoppingListItem(1, "Rice 5kg"),
-                    new ShoppingListItem(2, "Beans 1kg")
-                }
-            };
-    }
+                new ShoppingListItem(1, "Rice 5kg"),
+                new ShoppingListItem(2, "Beans 1kg")
+            }
+        };
 }

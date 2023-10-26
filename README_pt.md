@@ -4,7 +4,7 @@
 
 Este projeto é um exemplo de uma API de lista de compras, com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
 
-A API é uma ASP NET WebAPI usando .NET 5, com o mínimo possível de bibliotecas.
+A API é uma ASP NET WebAPI usando .NET 7, com o mínimo possível de bibliotecas.
 
 ## Padrões de arquitetura e conceitos de programação aplicados
 
@@ -21,7 +21,7 @@ Os links são para estudos e referências de conhecimento.
 
 ## Para executar o projeto
 
-O projeto requer apenas o [.NET 5](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória, então não precisa de nenhum banco de dados instalado. Para executar os testes de API, é necessário ter o [Postman](https://www.postman.com/downloads/).
+O projeto requer apenas o [.NET 7](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória, então não precisa de nenhum banco de dados instalado. Para executar os testes de API, é necessário ter o [Postman](https://www.postman.com/downloads/).
 
 O script `runserverlocal.ps1` compila o projeto e executa a API, ouvindo em `http://localhost:5000`.
 

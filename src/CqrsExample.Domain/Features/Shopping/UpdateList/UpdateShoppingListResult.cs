@@ -1,14 +1,13 @@
 using System;
 using CqrsExample.Domain.BaseAbstractions.Commands;
 
-namespace CqrsExample.Domain.Features.Shopping.UpdateList
-{
-    public sealed class UpdateShoppingListResult : CommandResult
-    {
-        public override bool Equals(object? obj) =>
-            obj is UpdateShoppingListResult result;
+namespace CqrsExample.Domain.Features.Shopping.UpdateList;
 
-        public override int GetHashCode() =>
-            HashCode.Combine(this);
-    }
+public sealed class UpdateShoppingListResult : CommandResult
+{
+    public override bool Equals(object? obj) =>
+        obj is UpdateShoppingListResult;
+
+    public override int GetHashCode() =>
+        HashCode.Combine(this);
 }

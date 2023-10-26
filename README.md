@@ -4,7 +4,7 @@
 
 This project is an example of a shopping list API, to show some software architectural concepts, mainly CQRS (Command and Query Responsibility Segregation).
 
-The API is an ASP NET WebAPI using .NET 5, with as few external dependencies as possible.
+The API is an ASP NET WebAPI using .NET 7, with as few external dependencies as possible.
 
 ## Architectural patterns and programming concepts applied
 
@@ -21,7 +21,7 @@ The links are for studying and for knowledge reference.
 
 ## To run the project
 
-The project requires only [.NET 5](https://dotnet.microsoft.com/) installed. The API uses an in-memory database, so no database is necessary. The API testing requires [Postman](https://www.postman.com/downloads/).
+The project requires only [.NET 7](https://dotnet.microsoft.com/) installed. The API uses an in-memory database, so no database is necessary. The API testing requires [Postman](https://www.postman.com/downloads/).
 
 The `runserverlocal.ps1` script builds and runs the API, listening on `http://localhost:5000`.
 

@@ -4,41 +4,40 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CqrsExample.Api
+namespace CqrsExample.Api;
+
+public class Startup
 {
-    public class Startup
+    public IConfiguration Configuration { get; }
+
+    public Startup(IConfiguration configuration) =>
+        Configuration = configuration;
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
     {
-        public IConfiguration Configuration { get; }
+        services
+            .AddCustomControllers()
+            .AddDefaultJsonOptions();
 
-        public Startup(IConfiguration configuration) =>
-            Configuration = configuration;
+        services
+            .AddSerilogLogger()
+            .AddSwaggerConfiguration()
+            .AddRepositories()
+            .AddQueryHandlers()
+            .AddCommandHandlers();
+    }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseSwaggerConfiguration();
+
+        app.UseRouting();
+
+        app.UseEndpoints(endpoints =>
         {
-            services
-                .AddCustomControllers()
-                .AddDefaultJsonOptions();
-
-            services
-                .AddSerilogLogger()
-                .AddSwaggerConfiguration()
-                .AddRepositories()
-                .AddQueryHandlers()
-                .AddCommandHandlers();            
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            app.UseSwaggerConfiguration();
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+            endpoints.MapControllers();
+        });
     }
 }
