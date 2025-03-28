@@ -8,11 +8,20 @@ insert_final_newline = false
 trim_trailing_whitespace = true
 max_line_length = 100
 
+[*.sln]
+end_of_line = crlf
+
 [*.yml]
 indent_size = 2
 quote_type = single
 
 [*.csproj]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+[*.json]
+indent_style = space
 indent_size = 2
 
 [*.md]

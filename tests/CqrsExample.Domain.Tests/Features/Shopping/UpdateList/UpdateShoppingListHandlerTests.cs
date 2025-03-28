@@ -1,40 +1,37 @@
-using System;
-using System.Threading.Tasks;
-using CqrsExample.Domain.BaseAbstractions.Commands;
-using CqrsExample.Domain.BaseAbstractions.Errors;
+using CqrsExample.Domain.BaseAbstractions;
 using CqrsExample.Domain.Features.Shopping;
 using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.Common.Repositories;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
-using Moq;
+using NSubstitute;
 using Xunit;
 
-namespace CqrsExample.Domain.Tests.Feature.Shopping.UpdateList;
+namespace CqrsExample.Domain.Tests.Features.Shopping.UpdateList;
 
 public class UpdateShoppingListHandlerTests
 {
-    private static readonly UpdateShoppingListCommand invalidCmd = new();
+    private static readonly UpdateShoppingListCommand invalidCmd = new(null, null, null);
     private static readonly UpdateShoppingListCommand validCmd = CreateValidTestCmd();
     private static readonly ShoppingList testShoppingList = new()
     {
-        Id = (Guid)validCmd.GetId()!,
+        Id = (Guid)validCmd.Id!,
         Title = "Lista de compras",
         Items = Array.Empty<ShoppingListItem>()
     };
     private static readonly ShoppingList testShoppingListUpdated = new()
     {
-        Id = (Guid)validCmd.GetId()!,
+        Id = (Guid)validCmd.Id!,
         Title = validCmd.Title!,
         Items = validCmd.Items!
     };
 
-    private readonly Mock<IShoppingListWriteRepository> repository;
+    private readonly IShoppingListWriteRepository repo;
     private readonly UpdateShoppingListHandler handler;
 
     public UpdateShoppingListHandlerTests()
     {
-        this.repository = new Mock<IShoppingListWriteRepository>();
-        this.handler = new UpdateShoppingListHandler(this.repository.Object);
+        this.repo = Substitute.For<IShoppingListWriteRepository>();
+        this.handler = new(this.repo);
     }
 
     [Fact]
@@ -45,81 +42,73 @@ public class UpdateShoppingListHandlerTests
         var result = await this.handler.HandleAsync(invalidCmd);
 
         // THEN
-        this.repository.VerifyNoOtherCalls();
-        Assert.False(result.IsSuccess);
+        await this.repo.DidNotReceiveWithAnyArgs().GetAsync(default);
+        await this.repo.DidNotReceiveWithAnyArgs().UpdateAsync(null!);
+        Assert.False(result.Successful);
         Assert.Equal(CommandResultFailureType.Validation, result.FailureType);
-        Assert.NotNull(result.Errors);
-        Assert.Equal(3, result.Errors!.Length);
-        Assert.Contains(new Error(ShoppingListErrors.InvalidId), result.Errors);
-        Assert.Contains(new Error(ShoppingListErrors.BlankTitle), result.Errors);
-        Assert.Contains(new Error(ShoppingListErrors.ItemsNull), result.Errors);
+        Assert.Equal(new(ShoppingListErrors.InvalidId), result.Error);
     }
 
     [Fact]
     public async Task Should_fail_not_found_if_list_was_not_found()
     {
         // GIVEN
-        this.repository.Setup(r => r.GetAsync((Guid)validCmd.GetId()!))
-                  .ReturnsAsync((ShoppingList?)null);
+        this.repo.GetAsync((Guid)validCmd.Id!)
+                 .Returns((ShoppingList?)null);
 
         // WHEN
         var result = await this.handler.HandleAsync(validCmd);
 
         // THEN
-        this.repository.Verify(r => r.GetAsync((Guid)validCmd.GetId()!), Times.Once);
-        this.repository.Verify(r => r.UpdateAsync(It.IsAny<ShoppingList>()), Times.Never);
-        Assert.False(result.IsSuccess);
+        await this.repo.Received().GetAsync((Guid)validCmd.Id!);
+        await this.repo.DidNotReceiveWithAnyArgs().UpdateAsync(null!);
+        Assert.False(result.Successful);
         Assert.Equal(CommandResultFailureType.NotFound, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.ShoppingListNotFound));
+        Assert.Equal(new(ShoppingListErrors.ShoppingListNotFound), result.Error);
     }
 
     [Fact]
     public async Task Should_fail_internal_error_when_list_could_not_be_saved()
     {
         // GIVEN
-        this.repository.Setup(r => r.GetAsync((Guid)validCmd.GetId()!))
-                  .ReturnsAsync(testShoppingList);
-        this.repository.Setup(r => r.UpdateAsync(testShoppingListUpdated))
-                  .ReturnsAsync(false);
+        this.repo.GetAsync((Guid)validCmd.Id!)
+                 .Returns(testShoppingList);
+        this.repo.UpdateAsync(testShoppingListUpdated)
+                 .Returns(false);
 
         // WHEN
         var result = await this.handler.HandleAsync(validCmd);
 
         // THEN
-        this.repository.Verify(r => r.GetAsync((Guid)validCmd.GetId()!), Times.Once);
-        this.repository.Verify(r => r.UpdateAsync(testShoppingListUpdated), Times.Once);
-        Assert.False(result.IsSuccess);
+        await this.repo.Received().GetAsync((Guid)validCmd.Id!);
+        await this.repo.Received().UpdateAsync(testShoppingListUpdated);
+        Assert.False(result.Successful);
         Assert.Equal(CommandResultFailureType.InternalError, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.InternalError));
+        Assert.Equal(new(ShoppingListErrors.InternalError), result.Error);
     }
 
     [Fact]
     public async Task Should_be_successful_if_list_was_updated_in_database()
     {
         // GIVEN
-        this.repository.Setup(r => r.GetAsync((Guid)validCmd.GetId()!))
-                  .ReturnsAsync(testShoppingList);
-        this.repository.Setup(r => r.UpdateAsync(testShoppingListUpdated))
-                  .ReturnsAsync(true);
+        this.repo.GetAsync((Guid)validCmd.Id!)
+                 .Returns(testShoppingList);
+        this.repo.UpdateAsync(testShoppingListUpdated)
+                 .Returns(true);
 
         // WHEN
         var result = await this.handler.HandleAsync(validCmd);
 
         // THEN
-        this.repository.Verify(r => r.GetAsync((Guid)validCmd.GetId()!), Times.Once);
-        this.repository.Verify(r => r.UpdateAsync(testShoppingListUpdated), Times.Once);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(new UpdateShoppingListResult(), result.SuccessResult);
+        await this.repo.Received().GetAsync((Guid)validCmd.Id!);
+        await this.repo.Received().UpdateAsync(testShoppingListUpdated);
+        Assert.True(result.Successful);
+        Assert.Equal(UpdateShoppingListResult.Success, result);
     }
 
-    private static UpdateShoppingListCommand CreateValidTestCmd()
-    {
-        var cmd = new UpdateShoppingListCommand()
-        {
-            Title = "Minha lista de compras",
-            Items = Array.Empty<ShoppingListItem>()
-        };
-        cmd.SetId(Guid.NewGuid());
-        return cmd;
-    }
+    private static UpdateShoppingListCommand CreateValidTestCmd() => new(
+        Id: Guid.NewGuid(),
+        Title: "Minha lista de compras",
+        Items: Array.Empty<ShoppingListItem>()
+    );
 }

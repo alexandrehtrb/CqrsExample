@@ -1,41 +1,32 @@
-using System;
-using System.Threading.Tasks;
-using CqrsExample.Domain.BaseAbstractions.Errors;
-using CqrsExample.Domain.BaseAbstractions.Queries;
+using CqrsExample.Domain.BaseAbstractions;
 using CqrsExample.Domain.Features.Shopping;
 using CqrsExample.Domain.Features.Shopping.Common.Entities;
-using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.Common.Repositories;
-using Moq;
+using CqrsExample.Domain.Features.Shopping.GetList;
+using NSubstitute;
 using Xunit;
 
-namespace CqrsExample.Domain.Tests.Feature.Shopping.GetList;
+namespace CqrsExample.Domain.Tests.Features.Shopping.GetList;
 
 public class GetShoppingListHandlerTests
 {
     private static readonly Guid testId = Guid.NewGuid();
     private static readonly GetShoppingListQuery invalidQry = new(Guid.Empty);
     private static readonly GetShoppingListQuery validQry = new(testId);
-    private static readonly ShoppingList testShoppingList = new()
-    {
-        Id = testId,
-        Title = "Minha lista de compras",
-        Items = Array.Empty<ShoppingListItem>()
-    };
-    private static readonly GetShoppingListResult testResult = new()
+    private static readonly ShoppingList testList = new()
     {
         Id = testId,
         Title = "Minha lista de compras",
         Items = Array.Empty<ShoppingListItem>()
     };
 
-    private readonly Mock<IShoppingListReadRepository> repository;
+    private readonly IShoppingListReadRepository repo;
     private readonly GetShoppingListHandler handler;
 
     public GetShoppingListHandlerTests()
     {
-        this.repository = new Mock<IShoppingListReadRepository>();
-        this.handler = new GetShoppingListHandler(this.repository.Object);
+        this.repo = Substitute.For<IShoppingListReadRepository>();
+        this.handler = new(this.repo);
     }
 
     [Fact]
@@ -46,42 +37,42 @@ public class GetShoppingListHandlerTests
         var result = await this.handler.HandleAsync(invalidQry);
 
         // THEN
-        this.repository.VerifyNoOtherCalls();
-        Assert.False(result.IsSuccess);
+        await this.repo.DidNotReceiveWithAnyArgs().GetAsync(default!);
+        Assert.False(result.Successful);
         Assert.Equal(QueryResultFailureType.Validation, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.InvalidId));
+        Assert.Equal(new(ShoppingListErrors.InvalidId), result.Error!);
     }
 
     [Fact]
     public async Task Should_fail_not_found_when_list_was_not_found()
     {
         // GIVEN
-        this.repository.Setup(r => r.QueryAsync<GetShoppingListResult>((Guid)validQry.Id!))
-                  .ReturnsAsync((GetShoppingListResult?)null);
+        this.repo.GetAsync((Guid)validQry.Id!).Returns((ShoppingList?)null);
 
         // WHEN
         var result = await this.handler.HandleAsync(validQry);
 
         // THEN
-        this.repository.Verify(r => r.QueryAsync<GetShoppingListResult>((Guid)validQry.Id!), Times.Once);
-        Assert.False(result.IsSuccess);
+        await this.repo.Received().GetAsync((Guid)validQry.Id!);
+        Assert.False(result.Successful);
         Assert.Equal(QueryResultFailureType.NotFound, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.ShoppingListNotFound));
+        Assert.Equal(new(ShoppingListErrors.ShoppingListNotFound), result.Error!);
     }
 
     [Fact]
     public async Task Should_be_successful_if_list_is_found()
     {
         // GIVEN
-        this.repository.Setup(r => r.QueryAsync<GetShoppingListResult>((Guid)validQry.Id!))
-                  .ReturnsAsync(testResult);
+        this.repo.GetAsync((Guid)validQry.Id!).Returns(testList);
 
         // WHEN
         var result = await this.handler.HandleAsync(validQry);
 
         // THEN
-        this.repository.Verify(r => r.QueryAsync<GetShoppingListResult>((Guid)validQry.Id!), Times.Once);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(testResult, result.SuccessResult);
+        await this.repo.Received().GetAsync((Guid)validQry.Id!);
+        Assert.True(result.Successful);
+        Assert.Equal(testList.Id, result.Id);
+        Assert.Equal(testList.Title, result.Title);
+        Assert.Equal(testList.Items, result.Items);
     }
 }

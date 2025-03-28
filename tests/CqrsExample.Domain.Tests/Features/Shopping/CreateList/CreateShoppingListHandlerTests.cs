@@ -1,29 +1,26 @@
-using System;
-using System.Threading.Tasks;
-using CqrsExample.Domain.BaseAbstractions.Commands;
-using CqrsExample.Domain.BaseAbstractions.Errors;
+using CqrsExample.Domain.BaseAbstractions;
 using CqrsExample.Domain.Features.Shopping;
-using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.Common.Repositories;
-using Moq;
+using CqrsExample.Domain.Features.Shopping.CreateList;
+using NSubstitute;
 using Xunit;
 
-namespace CqrsExample.Domain.Tests.Feature.Shopping.CreateList;
+namespace CqrsExample.Domain.Tests.Features.Shopping.CreateList;
 
 public class CreateShoppingListHandlerTests
 {
     private static readonly string testTitle = "Lista de compras 2";
-    private static readonly CreateShoppingListCommand invalidCmd = new();
-    private static readonly CreateShoppingListCommand validCmd = new() { Title = testTitle };
+    private static readonly CreateShoppingListCommand invalidCmd = new(null);
+    private static readonly CreateShoppingListCommand validCmd = new(testTitle);
 
-    private readonly Mock<IShoppingListWriteRepository> repository;
+    private readonly IShoppingListWriteRepository repo;
     private readonly CreateShoppingListHandler handler;
 
     public CreateShoppingListHandlerTests()
     {
-        this.repository = new Mock<IShoppingListWriteRepository>();
-        this.handler = new CreateShoppingListHandler(this.repository.Object);
+        this.repo = Substitute.For<IShoppingListWriteRepository>();
+        this.handler = new(this.repo);
     }
 
     [Fact]
@@ -34,45 +31,44 @@ public class CreateShoppingListHandlerTests
         var result = await this.handler.HandleAsync(invalidCmd);
 
         // THEN
-        this.repository.VerifyNoOtherCalls();
-        Assert.False(result.IsSuccess);
+        await this.repo.DidNotReceiveWithAnyArgs().InsertAsync(null!);
+        Assert.False(result.Successful);
         Assert.Equal(CommandResultFailureType.Validation, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.BlankTitle));
+        Assert.Equal(new(ShoppingListErrors.BlankTitle), result.Error);
     }
 
     [Fact]
     public async Task Should_fail_internal_error_when_list_could_not_be_saved()
     {
         // GIVEN
-        this.repository.Setup(r => r.InsertAsync(It.Is<ShoppingList>(s => s.Title == testTitle)))
-                  .ReturnsAsync(false);
+        this.repo.InsertAsync(Arg.Is<ShoppingList>(s => s.Title == testTitle))
+                 .Returns(false);
 
         // WHEN
         var result = await this.handler.HandleAsync(validCmd);
 
         // THEN
-        this.repository.Verify(r => r.InsertAsync(It.Is<ShoppingList>(s => s.Title == testTitle)), Times.Once);
-        Assert.False(result.IsSuccess);
+        await this.repo.Received().InsertAsync(Arg.Is<ShoppingList>(s => s.Title == testTitle));
+        Assert.False(result.Successful);
         Assert.Equal(CommandResultFailureType.InternalError, result.FailureType);
-        Assert.Single(result.Errors!, new Error(ShoppingListErrors.InternalError));
+        Assert.Equal(new(ShoppingListErrors.InternalError), result.Error);
     }
 
     [Fact]
     public async Task Should_be_successful_if_list_was_saved()
     {
         // GIVEN
-        this.repository.Setup(r => r.InsertAsync(It.Is<ShoppingList>(s => s.Title == testTitle)))
-                  .ReturnsAsync(true);
+        this.repo.InsertAsync(Arg.Is<ShoppingList>(s => s.Title == testTitle))
+                 .Returns(true);
 
         // WHEN
         var result = await this.handler.HandleAsync(validCmd);
 
         // THEN
-        this.repository.Verify(r => r.InsertAsync(It.Is<ShoppingList>(s => s.Title == testTitle)), Times.Once);
-        Assert.True(result.IsSuccess);
-        Assert.NotNull(result.SuccessResult);
-        Assert.NotEqual(Guid.Empty, result.SuccessResult!.Id);
-        Assert.Equal(testTitle, result.SuccessResult!.Title);
-        Assert.Empty(result.SuccessResult!.Items);
+        await this.repo.Received().InsertAsync(Arg.Is<ShoppingList>(s => s.Title == testTitle));
+        Assert.True(result.Successful);
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal(testTitle, result.Title);
+        Assert.Empty(result.Items);
     }
 }

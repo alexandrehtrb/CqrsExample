@@ -1,29 +1,53 @@
-using System;
-using System.Threading.Tasks;
-using CqrsExample.Domain.BaseAbstractions.Errors;
-using CqrsExample.Domain.BaseAbstractions.Queries;
+using System.Text.Json.Serialization;
+using CqrsExample.Domain.BaseAbstractions;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.Common.Repositories;
 
 namespace CqrsExample.Domain.Features.Shopping.GetList;
 
-public sealed class GetShoppingListHandler : IQueryHandler<GetShoppingListQuery, GetShoppingListResult>
+public sealed record GetShoppingListQuery(Guid? Id) : Query;
+
+public sealed record GetShoppingListResult(
+    Guid Id,
+    string Title,
+    ShoppingListItem[] Items,
+    QueryResultFailureType? FailureType = null,
+    CqrsError? Error = null) : QueryResult(FailureType, Error)
 {
-    private static readonly Error notFoundError = new(ShoppingListErrors.ShoppingListNotFound);
+    private static GetShoppingListResult Failed(QueryResultFailureType failureType, CqrsError error) => new(
+        Guid.Empty,
+        string.Empty,
+        [],
+        failureType,
+        error);
 
-    private readonly IShoppingListReadRepository repository;
+    public static readonly GetShoppingListResult InternalError =
+        Failed(QueryResultFailureType.InternalError, new(ShoppingListErrors.InternalError));
 
-    public GetShoppingListHandler(IShoppingListReadRepository repository) =>
-        this.repository = repository;
+    public static readonly GetShoppingListResult NotFound =
+        Failed(QueryResultFailureType.NotFound, new(ShoppingListErrors.ShoppingListNotFound));
 
-    public async Task<QueryResult<GetShoppingListResult>> HandleAsync(GetShoppingListQuery qry)
+    public static GetShoppingListResult ValidationError(CqrsError error) =>
+        Failed(QueryResultFailureType.Validation, error);
+
+    public static GetShoppingListResult Success(ShoppingList list) => new(
+        Id: list.Id,
+        Title: list.Title,
+        Items: list.Items
+    );
+}
+
+public sealed class GetShoppingListHandler(IShoppingListReadRepository repo)
+{
+    public async Task<GetShoppingListResult> HandleAsync(GetShoppingListQuery qry)
     {
-        if (!qry.Validate(out var errors))
-            return QueryResult<GetShoppingListResult>.Fail(QueryResultFailureType.Validation, errors!);
+        if (!qry.Validate(out var error))
+            return GetShoppingListResult.ValidationError(error!);
 
-        var qryResult = await this.repository.QueryAsync<GetShoppingListResult>((Guid)qry.Id!);
+        var qryResult = await repo.GetAsync((Guid)qry.Id!);
 
         return qryResult != null ?
-            QueryResult<GetShoppingListResult>.Success(qryResult) :
-            QueryResult<GetShoppingListResult>.NotFound(notFoundError);
+            GetShoppingListResult.Success(qryResult) :
+            GetShoppingListResult.NotFound;
     }
 }

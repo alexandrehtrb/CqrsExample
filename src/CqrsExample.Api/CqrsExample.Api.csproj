@@ -1,19 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>Enable</Nullable>
+    <ImplicitUsings>Enable</ImplicitUsings>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <PublishTrimmed>True</PublishTrimmed>
+    <TrimMode>Full</TrimMode>
+    <PublishAot>True</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CqrsExample.Domain\CqrsExample.Domain.csproj"/>
     <ProjectReference Include="..\..\src\CqrsExample.Infrastructure\CqrsExample.Infrastructure.csproj"/>
-    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="SerilogTracing" Version="2.3.1" />
+    <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />
+    <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore" Version="2.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,8 @@
-using CqrsExample.Domain.BaseAbstractions.Errors;
 using CqrsExample.Domain.Features.Shopping;
 using CqrsExample.Domain.Features.Shopping.CreateList;
 using Xunit;
 
-namespace CqrsExample.Domain.Tests.Feature.Shopping.CreateList;
+namespace CqrsExample.Domain.Tests.Features.Shopping.CreateList;
 
 public static class CreateShoppingListCommandValidatorTests
 {
@@ -13,24 +12,18 @@ public static class CreateShoppingListCommandValidatorTests
     [InlineData("    ")]
     public static void Should_not_allow_blank_title(string? title)
     {
-        var testCmd = new CreateShoppingListCommand()
-        {
-            Title = title
-        };
+        var testCmd = new CreateShoppingListCommand(title);
 
-        Assert.False(testCmd.Validate(out var errors));
-        Assert.Single(errors!, new Error(ShoppingListErrors.BlankTitle));
+        Assert.False(testCmd.Validate(out var error));
+        Assert.Equal(new(ShoppingListErrors.BlankTitle), error!);
     }
 
     [Fact]
     public static void Should_allow_valid_command()
     {
-        var testCmd = new CreateShoppingListCommand()
-        {
-            Title = "Minha lista de compras"
-        };
+        var testCmd = new CreateShoppingListCommand("Minha lista de compras");
 
-        Assert.True(testCmd.Validate(out var errors));
-        Assert.Null(errors);
+        Assert.True(testCmd.Validate(out var error));
+        Assert.Null(error);
     }
 }

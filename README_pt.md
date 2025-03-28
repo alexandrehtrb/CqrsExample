@@ -4,27 +4,25 @@
 
 Este projeto é um exemplo de uma API de lista de compras, com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
 
-A API é uma ASP NET WebAPI usando .NET 7, com o mínimo possível de bibliotecas.
+A API é uma ASP NET WebAPI usando .NET 9, com o mínimo possível de bibliotecas.
 
 ## Padrões de arquitetura e conceitos de programação aplicados
 
 Os links são para estudos e referências de conhecimento.
 
-* Padrão CQRS [(link1)](https://docs.microsoft.com/pt-br/azure/architecture/patterns/cqrs) [(link2)](https://cqrs.wordpress.com/documents/cqrs-introduction/)
-* Padrão de notificações (notifications pattern) [(link)](https://martinfowler.com/articles/replaceThrowWithNotification.html)
-* Diretórios por funcionalidades (feature folders) [(link)](http://www.kamilgrzybek.com/design/feature-folders/)
-* Logs estruturados (structured logging) [(link)](https://messagetemplates.org/)
-* Tipos nuláveis e não-nuláveis [(link)](https://docs.microsoft.com/pt-br/dotnet/csharp/nullable-references)
-* Testes unitários [(link)](https://softwaretestingfundamentals.com/unit-testing/)
-* Testes de APIs [(link)](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/)
-* Documentação Swagger com exemplos [(link)](https://github.com/mattfrear/Swashbuckle.AspNetCore.Filters)
+* [Padrão CQRS](https://docs.microsoft.com/pt-br/azure/architecture/patterns/cqrs)
+* [Padrão de notificações](https://martinfowler.com/articles/replaceThrowWithNotification.html)
+* [Diretórios por funcionalidades](http://www.kamilgrzybek.com/design/feature-folders/)
+* [Logs estruturados](https://messagetemplates.org/)
+* [Tipos nuláveis e não-nuláveis](https://docs.microsoft.com/pt-br/dotnet/csharp/nullable-references)
+* [Testes unitários](https://softwaretestingfundamentals.com/unit-testing/)
+* [Testes de APIs](https://pororoca.io/pt/docs/automated-tests)
+* [Documentação REST](https://guides.scalar.com/scalar/scalar-api-references/net-integration)
 
 ## Para executar o projeto
 
-O projeto requer apenas o [.NET 7](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória, então não precisa de nenhum banco de dados instalado. Para executar os testes de API, é necessário ter o [Postman](https://www.postman.com/downloads/).
+O projeto requer apenas o [.NET 9](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória, então não precisa de nenhum banco de dados instalado.
 
-O script `runserverlocal.ps1` compila o projeto e executa a API, ouvindo em `http://localhost:5000`.
+O script `runserverlocal.ps1` compila o projeto e executa a API, ouvindo em `https://localhost:5001`.
 
 O script `rununittests.ps1` executa os testes unitários e gera um relatório de cobertura de testes na pasta `TestResults`. Requer o [ReportGenerator](https://github.com/danielpalme/ReportGenerator) instalado.
-
-Para rodar os testes de API, importar os arquivos de collection e environment do Postman que estão na pasta `tests` e depois iniciar o collection runner (tutorial [aqui](https://learning.postman.com/docs/running-collections/intro-to-collection-runs/)).

@@ -1,36 +1,41 @@
-using System;
-using System.Threading.Tasks;
-using CqrsExample.Domain.BaseAbstractions.Commands;
-using CqrsExample.Domain.BaseAbstractions.Errors;
+using CqrsExample.Domain.BaseAbstractions;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.Common.Repositories;
 
 namespace CqrsExample.Domain.Features.Shopping.UpdateList;
 
-public sealed class UpdateShoppingListHandler : ICommandHandler<UpdateShoppingListCommand, UpdateShoppingListResult>
+public sealed record UpdateShoppingListCommand(
+    Guid? Id,
+    string? Title,
+    ShoppingListItem[]? Items) : Command;
+
+public sealed record UpdateShoppingListResult(
+    CommandResultFailureType? FailureType = null,
+    CqrsError? Error = null) : CommandResult(FailureType, Error)
 {
-    private static readonly Error errorInternal = new(ShoppingListErrors.InternalError);
-    private static readonly Error errorNotFound = new(ShoppingListErrors.ShoppingListNotFound);
+    public static readonly UpdateShoppingListResult Success = new(null, null);
+    public static readonly UpdateShoppingListResult NotFound = new(CommandResultFailureType.NotFound, new(ShoppingListErrors.ShoppingListNotFound));
+    public static readonly UpdateShoppingListResult InternalError = new(CommandResultFailureType.InternalError, new(ShoppingListErrors.InternalError));
+}
 
-    private readonly IShoppingListWriteRepository repository;
-
-    public UpdateShoppingListHandler(IShoppingListWriteRepository repository) =>
-        this.repository = repository;
-
-    public async Task<CommandResult<UpdateShoppingListResult>> HandleAsync(UpdateShoppingListCommand cmd)
+public sealed class UpdateShoppingListHandler(IShoppingListWriteRepository repo)
+{
+    public async Task<UpdateShoppingListResult> HandleAsync(UpdateShoppingListCommand cmd)
     {
-        if (!cmd.Validate(out var errors))
-            return CommandResult<UpdateShoppingListResult>.Fail(CommandResultFailureType.Validation, errors!);
+        if (!cmd.Validate(out var error))
+            return new(CommandResultFailureType.Validation, error!);
 
-        var shoppingList = await this.repository.GetAsync((Guid)cmd.GetId()!);
+        var shoppingList = await repo.GetAsync((Guid)cmd.Id!);
+
         if (shoppingList == null)
-            return CommandResult<UpdateShoppingListResult>.Fail(CommandResultFailureType.NotFound, errorNotFound);
+            return UpdateShoppingListResult.NotFound;
 
         shoppingList.Update(cmd.Title!, cmd.Items!);
 
-        bool success = await this.repository.UpdateAsync(shoppingList);
+        bool success = await repo.UpdateAsync(shoppingList);
 
         return success ?
-            CommandResult<UpdateShoppingListResult>.Success(new UpdateShoppingListResult()) :
-            CommandResult<UpdateShoppingListResult>.Fail(CommandResultFailureType.InternalError, errorInternal);
+            UpdateShoppingListResult.Success :
+            UpdateShoppingListResult.InternalError;
     }
 }

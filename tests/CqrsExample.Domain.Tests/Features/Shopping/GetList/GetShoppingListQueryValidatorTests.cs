@@ -1,10 +1,8 @@
-using System;
-using CqrsExample.Domain.BaseAbstractions.Errors;
 using CqrsExample.Domain.Features.Shopping;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using Xunit;
 
-namespace CqrsExample.Domain.Tests.Feature.Shopping.GetList;
+namespace CqrsExample.Domain.Tests.Features.Shopping.GetList;
 
 public static class GetShoppingListQueryValidatorTests
 {
@@ -13,8 +11,8 @@ public static class GetShoppingListQueryValidatorTests
     {
         var testQuery = new GetShoppingListQuery(null);
 
-        Assert.False(testQuery.Validate(out var errors));
-        Assert.Single(errors!, new Error(ShoppingListErrors.InvalidId));
+        Assert.False(testQuery.Validate(out var error));
+        Assert.Equal(new(ShoppingListErrors.InvalidId), error!);
     }
 
     [Fact]
@@ -22,8 +20,8 @@ public static class GetShoppingListQueryValidatorTests
     {
         var testQuery = new GetShoppingListQuery(Guid.Empty);
 
-        Assert.False(testQuery.Validate(out var errors));
-        Assert.Single(errors!, new Error(ShoppingListErrors.InvalidId));
+        Assert.False(testQuery.Validate(out var error));
+        Assert.Equal(new(ShoppingListErrors.InvalidId), error!);
     }
 
     [Fact]

@@ -1,73 +1,106 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using CqrsExample.Domain.BaseAbstractions.Errors;
-using CqrsExample.Domain.Features.Shopping.Common.Entities;
+using CqrsExample.Domain.BaseAbstractions;
 
 namespace CqrsExample.Domain.Features.Shopping.UpdateList;
 
 public static class UpdateShoppingListCommandValidator
 {
-    public static bool Validate(this UpdateShoppingListCommand cmd, out Error[]? errors)
+    public static bool Validate(this UpdateShoppingListCommand cmd, out CqrsError? error) =>
+        ValidateId(cmd, out error) &&
+        ValidateTitle(cmd, out error) &&
+        ValidateItemsNotNull(cmd, out error) &&
+        ValidateItemsNames(cmd, out error) &&
+        ValidateItemsQuantities(cmd, out error) &&
+        ValidateItemsNotRepeated(cmd, out error);
+
+    private static bool ValidateId(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
-        var errorsList = new List<Error>();
-
-        ValidateId(cmd, errorsList);
-        ValidateTitle(cmd, errorsList);
-        ValidateItemsNotNull(cmd, errorsList);
-        ValidateItemsNames(cmd, errorsList);
-        ValidateItemsQuantities(cmd, errorsList);
-        ValidateItemsNotRepeated(cmd, errorsList);
-
-        errors = errorsList.Count > 0 ? errorsList.ToArray() : null;
-        return errorsList.Count == 0;
+        if (cmd.Id == null || cmd.Id == Guid.Empty)
+        {
+            error = new(ShoppingListErrors.InvalidId);
+            return false;
+        }
+        else
+        {
+            error = null;
+            return true;
+        }
     }
 
-    private static void ValidateId(UpdateShoppingListCommand cmd, IList<Error> errorsList)
-    {
-        if (cmd.GetId() == null || cmd.GetId() == Guid.Empty)
-            errorsList.Add(new Error(ShoppingListErrors.InvalidId));
-    }
-
-    private static void ValidateTitle(UpdateShoppingListCommand cmd, IList<Error> errorsList)
+    private static bool ValidateTitle(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
         if (string.IsNullOrWhiteSpace(cmd.Title))
-            errorsList.Add(new Error(ShoppingListErrors.BlankTitle));
+        {
+            error = new(ShoppingListErrors.BlankTitle);
+            return false;
+        }
+        else
+        {
+            error = null;
+            return true;
+        }
     }
 
-    private static void ValidateItemsNotNull(UpdateShoppingListCommand cmd, IList<Error> errorsList)
+    private static bool ValidateItemsNotNull(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
         if (cmd.Items == null)
-            errorsList.Add(new Error(ShoppingListErrors.ItemsNull));
+        {
+            error = new(ShoppingListErrors.ItemsNull);
+            return false;
+        }
+        else
+        {
+            error = null;
+            return true;
+        }
     }
 
-    private static void ValidateItemsNames(UpdateShoppingListCommand cmd, IList<Error> errorsList)
+    private static bool ValidateItemsNames(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
         if (cmd.Items != null && cmd.Items.Any(i => string.IsNullOrWhiteSpace(i.ItemName)))
-            errorsList.Add(new Error(ShoppingListErrors.BlankItemName));
+        {
+            error = new(ShoppingListErrors.BlankItemName);
+            return false;
+        }
+        else
+        {
+            error = null;
+            return true;
+        }
     }
 
-    private static void ValidateItemsQuantities(UpdateShoppingListCommand cmd, IList<Error> errorsList)
+    private static bool ValidateItemsQuantities(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
         if (cmd.Items != null)
         {
             foreach (var i in cmd.Items)
             {
                 if (i.Quantity <= 0)
-                    errorsList.Add(new Error(ShoppingListErrors.ItemQuantityZeroOrLess, i.ItemName));
+                {
+                    error = new(ShoppingListErrors.ItemQuantityZeroOrLess, i.ItemName);
+                    return false;
+                }
             }
         }
+
+        error = null;
+        return true;
     }
 
-    private static void ValidateItemsNotRepeated(UpdateShoppingListCommand cmd, IList<Error> errorsList)
+    private static bool ValidateItemsNotRepeated(UpdateShoppingListCommand cmd, out CqrsError? error)
     {
         if (cmd.Items != null)
         {
             bool hasRepeatedItem = cmd.Items.GroupBy(i => i.ItemName, i => i)
-                                           .Select(d => (d.Key, d.Count()))
-                                           .Any(d => d.Item2 > 1);
+                                             .Select(d => (d.Key, d.Count()))
+                                             .Any(d => d.Item2 > 1);
             if (hasRepeatedItem)
-                errorsList.Add(new Error(ShoppingListErrors.RepeatedItems));
+            {
+                error = new(ShoppingListErrors.RepeatedItems);
+                return false;
+            }
         }
+
+        error = null;
+        return true;
     }
 }

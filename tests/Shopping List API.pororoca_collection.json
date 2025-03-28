@@ -1,6 +1,6 @@
-﻿{
+{
   "schema": "Pororoca/1",
-  "id": "505f486b-5016-400c-b054-e524680a3daa",
+  "id": "a9473cc1-ef0a-42c8-af3f-c8c038e6b9e9",
   "name": "Shopping List API",
   "createdAt": "2023-10-26T14:57:54.7654907-03:00",
   "variables": [],
@@ -10,154 +10,62 @@
       "id": "efd4748f-81f3-47a0-986a-f511cdc0e184",
       "createdAt": "2023-10-26T14:58:01.5406379-03:00",
       "name": "Local",
-      "isCurrent": true,
+      "isCurrent": false,
       "variables": [
         {
           "enabled": true,
           "key": "BaseShoppingListApiUrl",
-          "value": "http://localhost:5000/shoppinglist",
+          "value": "https://localhost:5001",
           "isSecret": false
         },
         {
           "enabled": true,
           "key": "ShoppingListId",
-          "value": "",
+          "value": "c5d0eeba-0ccf-4e50-928c-29dd999dbb59",
           "isSecret": true
         }
       ]
     }
   ],
-  "folders": [
+  "folders": [],
+  "requests": [
     {
+      "requestType": "http",
       "name": "Create List",
-      "folders": [],
-      "requests": [
+      "httpVersion": 2.0,
+      "httpMethod": "POST",
+      "url": "{{BaseShoppingListApiUrl}}",
+      "body": {
+        "mode": "raw",
+        "contentType": "application/json",
+        "rawContent": "{\r\n    \"title\": \"My shopping list\"\r\n}"
+      },
+      "responseCaptures": [
         {
-          "requestType": "http",
-          "name": "Create List - Validation Errors",
-          "httpVersion": 1.1,
-          "httpMethod": "POST",
-          "url": "{{BaseShoppingListApiUrl}}",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"\"\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        },
-        {
-          "requestType": "http",
-          "name": "Create List - Success",
-          "httpVersion": 1.1,
-          "httpMethod": "POST",
-          "url": "{{BaseShoppingListApiUrl}}",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"My shopping list\"\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          },
-          "responseCaptures": [
-            {
-              "type": "body",
-              "targetVariable": "ShoppingListId",
-              "path": "$.id"
-            }
-          ]
+          "type": "body",
+          "targetVariable": "ShoppingListId",
+          "path": "$.id"
         }
       ]
     },
     {
-      "name": "Update List",
-      "folders": [],
-      "requests": [
-        {
-          "requestType": "http",
-          "name": "Update List - Validation Errors",
-          "httpVersion": 1.1,
-          "httpMethod": "PUT",
-          "url": "{{BaseShoppingListApiUrl}}/{{ShoppingListId}}",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"\",\r\n    \"items\": [\r\n        { \"quantity\": 0, \"itemName\": \"Rice 5kg\" },\r\n        { \"quantity\": 2, \"itemName\": \"  \" },\r\n        { \"quantity\": 0, \"itemName\": \"Rice 5kg\" }\r\n    ]\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        },
-        {
-          "requestType": "http",
-          "name": "Update List - Not Found Error",
-          "httpVersion": 1.1,
-          "httpMethod": "PUT",
-          "url": "{{BaseShoppingListApiUrl}}/10000000-0000-0000-0000-000000000000",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": []\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        },
-        {
-          "requestType": "http",
-          "name": "Update List - Success",
-          "httpVersion": 1.1,
-          "httpMethod": "PUT",
-          "url": "{{BaseShoppingListApiUrl}}/{{ShoppingListId}}",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": [\r\n        { \"quantity\": 1 , \"itemName\": \"Rice 5kg\" },\r\n        { \"quantity\": 2 , \"itemName\": \"Beans 1kg\" }\r\n    ]\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        }
-      ]
-    },
-    {
+      "requestType": "http",
       "name": "Get List",
-      "folders": [],
-      "requests": [
-        {
-          "requestType": "http",
-          "name": "Get List - Not Found Error",
-          "httpVersion": 1.1,
-          "httpMethod": "GET",
-          "url": "{{BaseShoppingListApiUrl}}/10000000-0000-0000-0000-000000000000",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": "{\r\n    \"title\": \"My shopping list\",\r\n    \"items\": []\r\n}"
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        },
-        {
-          "requestType": "http",
-          "name": "Get List - Success",
-          "httpVersion": 1.1,
-          "httpMethod": "GET",
-          "url": "{{BaseShoppingListApiUrl}}/{{ShoppingListId}}",
-          "body": {
-            "mode": "raw",
-            "contentType": "application/json",
-            "rawContent": ""
-          },
-          "customAuth": {
-            "mode": "inheritFromCollection"
-          }
-        }
-      ]
+      "httpVersion": 2.0,
+      "httpMethod": "GET",
+      "url": "{{BaseShoppingListApiUrl}}/{{ShoppingListId}}"
+    },
+    {
+      "requestType": "http",
+      "name": "Update List",
+      "httpVersion": 2.0,
+      "httpMethod": "PUT",
+      "url": "{{BaseShoppingListApiUrl}}/{{ShoppingListId}}",
+      "body": {
+        "mode": "raw",
+        "contentType": "application/json",
+        "rawContent": "{\r\n    \"title\": \"My shopping list 2\",\r\n    \"items\": [\r\n        { \"quantity\": 1 , \"itemName\": \"Rice 5kg\" },\r\n        { \"quantity\": 2 , \"itemName\": \"Beans 1kg\" }\r\n    ]\r\n}"
+      }
     }
-  ],
-  "requests": []
+  ]
 }

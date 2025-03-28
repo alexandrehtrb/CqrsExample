@@ -3,32 +3,9 @@ using System.Collections.Generic;
 
 namespace CqrsExample.Domain.Features.Shopping.Common.Entities;
 
-public sealed class ShoppingListItem
-{
-    public int Quantity { get; set; }
-    public string ItemName { get; set; }
-
-    // Empty constructor for JSON deserialization
-#nullable disable warnings
-    public ShoppingListItem()
-    {
-    }
-#nullable restore warnings
-
-    public ShoppingListItem(int quantity, string itemName)
-    {
-        Quantity = quantity;
-        ItemName = itemName;
-    }
-
-    public override bool Equals(object? obj) =>
-        obj is ShoppingListItem item &&
-        Quantity == item.Quantity &&
-        ItemName == item.ItemName;
-
-    public override int GetHashCode() =>
-        HashCode.Combine(Quantity, ItemName);
-}
+public sealed record ShoppingListItem(
+    int Quantity,
+    string ItemName);
 
 public sealed class ShoppingList
 {
@@ -56,6 +33,9 @@ public sealed class ShoppingList
         Items = items;
     }
 
+    // We need this to be class instead of record
+    // and to override Equals, because default record
+    // equality does not deeply compare sequences / lists
     public override bool Equals(object? obj) =>
         obj is ShoppingList list &&
         Id.Equals(list.Id) &&

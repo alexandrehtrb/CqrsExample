@@ -1,24 +1,23 @@
-using System;
-using System.Collections.Generic;
-using CqrsExample.Domain.BaseAbstractions.Errors;
+using CqrsExample.Domain.BaseAbstractions;
 
 namespace CqrsExample.Domain.Features.Shopping.GetList;
 
 public static class GetShoppingListQueryValidator
 {
-    public static bool Validate(this GetShoppingListQuery qry, out Error[]? errors)
-    {
-        var errorsList = new List<Error>();
+    public static bool Validate(this GetShoppingListQuery qry, out CqrsError? error) =>
+        ValidateId(qry, out error);
 
-        ValidateId(qry, errorsList);
-
-        errors = errorsList.Count > 0 ? errorsList.ToArray() : null;
-        return errorsList.Count == 0;
-    }
-
-    private static void ValidateId(GetShoppingListQuery qry, IList<Error> errorsList)
+    private static bool ValidateId(GetShoppingListQuery qry, out CqrsError? error)
     {
         if (qry.Id == null || qry.Id == Guid.Empty)
-            errorsList.Add(new Error(ShoppingListErrors.InvalidId));
+        {
+            error = new(ShoppingListErrors.InvalidId);
+            return false;
+        }
+        else
+        {
+            error = null;
+            return true;
+        }
     }
 }
