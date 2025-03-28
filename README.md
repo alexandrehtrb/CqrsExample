@@ -2,7 +2,7 @@
 
 [Ler em português](README_pt.md)
 
-This project is an example of a shopping list API, to show some software architectural concepts, mainly CQRS (Command and Query Responsibility Segregation).
+This project is an example of a shopping list API to show some software architectural concepts, mainly CQRS (Command and Query Responsibility Segregation).
 
 The API is an ASP NET WebAPI using .NET 9, with as few external dependencies as possible.
 

@@ -2,7 +2,7 @@
 
 [Read in english](README.md)
 
-Este projeto é um exemplo de uma API de lista de compras, com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
+Este projeto é um exemplo de uma API de lista de compras com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
 
 A API é uma ASP NET WebAPI usando .NET 9, com o mínimo possível de bibliotecas.
 
