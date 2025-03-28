@@ -4,7 +4,7 @@
 
 This project is an example of a shopping list API to show some software architectural concepts, mainly CQRS (Command and Query Responsibility Segregation).
 
-The API is an ASP NET WebAPI using .NET 9, with as few external dependencies as possible.
+The server is an ASP.NET Minimal API using .NET 9, with as few external dependencies as possible.
 
 ## Architectural patterns and programming concepts applied
 
@@ -21,7 +21,7 @@ The links below are for studying and knowledge reference.
 
 ## To run the project
 
-The project requires only [.NET 9](https://dotnet.microsoft.com/) installed. The API uses an in-memory database, so no database is necessary.
+The project requires only [.NET 9](https://dotnet.microsoft.com/) installed. The API uses an in-memory database.
 
 The `runserverlocal.ps1` script builds and runs the API, listening on `https://localhost:5001`.
 
