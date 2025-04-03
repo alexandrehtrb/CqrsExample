@@ -17,7 +17,7 @@ The links below are for studying and knowledge reference.
 * [Nullable type checking](https://docs.microsoft.com/en-us/dotnet/csharp/nullable-references)
 * [Unit tests](https://softwaretestingfundamentals.com/unit-testing/)
 * [API tests](https://pororoca.io/docs/automated-tests)
-* [REST documentation](https://guides.scalar.com/scalar/scalar-api-references/net-integration)
+* [API documentation with examples](https://guides.scalar.com/scalar/scalar-api-references/net-integration)
 
 ## To run the project
 

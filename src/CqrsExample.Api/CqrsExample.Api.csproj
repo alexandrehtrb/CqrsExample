@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CqrsExample.Domain\CqrsExample.Domain.csproj"/>
-    <ProjectReference Include="..\..\src\CqrsExample.Infrastructure\CqrsExample.Infrastructure.csproj"/>
+    <ProjectReference Include="..\..\src\CqrsExample.Domain\CqrsExample.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CqrsExample.Infrastructure\CqrsExample.Infrastructure.csproj" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="SerilogTracing" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />

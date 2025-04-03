@@ -10,13 +10,16 @@ namespace CqrsExample.Api.Configurations;
 
 public static class JsonConfiguration
 {
+    public static readonly ApiJsonSrcGenContext JsonCtx =
+        new(SetupDefaultJsonOptions(new(), setupTypeInfoResolver: false));
+
     public static readonly JsonSerializerOptions DefaultJsonOptions =
-        SetupDefaultJsonOptions(new());
+        SetupDefaultJsonOptions(new(), true);
 
     public static IServiceCollection ConfigureJsonOptions(this IServiceCollection services) =>
-        services.Configure<JsonOptions>(o => SetupDefaultJsonOptions(o.SerializerOptions));
+        services.Configure<JsonOptions>(o => SetupDefaultJsonOptions(o.SerializerOptions, setupTypeInfoResolver: true));
 
-    public static JsonSerializerOptions SetupDefaultJsonOptions(JsonSerializerOptions options)
+    public static JsonSerializerOptions SetupDefaultJsonOptions(JsonSerializerOptions options, bool setupTypeInfoResolver)
     {
         options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
         options.WriteIndented = false;
@@ -24,7 +27,10 @@ public static class JsonConfiguration
         options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.AllowTrailingCommas = true;
         options.ReadCommentHandling = JsonCommentHandling.Skip;
-        options.TypeInfoResolver = ApiJsonSrcGenContext.Default;
+        if (setupTypeInfoResolver)
+        {
+            options.TypeInfoResolver = ApiJsonSrcGenContext.Default;
+        }
         return options;
     }
 }

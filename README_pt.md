@@ -17,7 +17,7 @@ Os links são para estudos e referências de conhecimento.
 * [Tipos nuláveis e não-nuláveis](https://docs.microsoft.com/pt-br/dotnet/csharp/nullable-references)
 * [Testes unitários](https://softwaretestingfundamentals.com/unit-testing/)
 * [Testes de APIs](https://pororoca.io/pt/docs/automated-tests)
-* [Documentação REST](https://guides.scalar.com/scalar/scalar-api-references/net-integration)
+* [Documentação da API com exemplos](https://guides.scalar.com/scalar/scalar-api-references/net-integration)
 
 ## Para executar o projeto
 

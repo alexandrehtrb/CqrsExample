@@ -1,49 +1,62 @@
 using System.Net;
+using CqrsExample.Api.Configurations;
 using CqrsExample.Domain.BaseAbstractions;
+using CqrsExample.Domain.Features.Shopping;
+using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using static CqrsExample.Api.Configurations.OpenApiConfiguration;
 
 namespace CqrsExample.Api;
 
 public static class Endpoints
 {
-    private const string contentTypeJson = "application/json; charset=utf-8";
+    internal const string ContentTypeJson = "application/json; charset=utf-8";
+    internal const string ContentTypeProblemDetailsJson = "application/problem+json; charset=utf-8";
 
     public static WebApplication MapAllEndpoints(this WebApplication app)
     {
         app.MapGet("/{id:Guid}", GetShoppingListAsync)
-            .WithSummary("Retrieves a shopping list.")
-            .WithTags("tag1")
-            .Produces<GetShoppingListResult>((int)HttpStatusCode.OK, contentTypeJson)
-            .ProducesProblem((int)HttpStatusCode.BadRequest, contentTypeJson)
-            .ProducesProblem((int)HttpStatusCode.NotFound, contentTypeJson)
-            .ProducesProblem((int)HttpStatusCode.InternalServerError, contentTypeJson);
+           .WithName(nameof(GetShoppingListAsync)) // required for examples
+           .WithTags("tag1")
+           .WithSummary("Retrieves a shopping list.")
+           .WithDescription("### markdown subheader\n\ntext here\n\n```powershell\necho 'Hello!';\n```")
+           .Produces<GetShoppingListResult>((int)HttpStatusCode.OK, ContentTypeJson)
+           .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypeProblemDetailsJson)
+           .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypeProblemDetailsJson)
+           .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypeProblemDetailsJson);
 
         app.MapPost("/", CreateShoppingListAsync)
-           .WithSummary("Creates a new shopping list.")
+           .WithName(nameof(CreateShoppingListAsync)) // required for examples
            .WithTags("tag1")
-           .Accepts<CreateShoppingListCommand>(contentTypeJson)
-           .Produces<CreateShoppingListResult>((int)HttpStatusCode.Created, contentTypeJson)
-           .ProducesProblem((int)HttpStatusCode.BadRequest, contentTypeJson)
-           .ProducesProblem((int)HttpStatusCode.NotFound, contentTypeJson)
-           .ProducesProblem((int)HttpStatusCode.InternalServerError, contentTypeJson);
+           .WithSummary("Creates a new shopping list.")
+           .WithDescription("### markdown subheader\n\ntext here\n\n```js\nconsole.log('Hello!');\n```")
+           .Accepts<CreateShoppingListCommand>(ContentTypeJson)
+           .Produces<CreateShoppingListResult>((int)HttpStatusCode.Created, ContentTypeJson)
+           .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypeProblemDetailsJson)
+           .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypeProblemDetailsJson);
 
         app.MapPut("/{id:Guid}", UpdateShoppingListAsync)
-           .WithSummary("Updates a shopping list.")
+           .WithName(nameof(UpdateShoppingListAsync)) // required for examples
            .WithTags("tag1")
-           .Accepts<UpdateShoppingListCommand>(contentTypeJson)
+           .WithSummary("Updates a shopping list.")
+           .WithDescription("### markdown subheader\n\ntext here\n\n```cs\nConsole.WriteLine(\"Hello!\");\n```")
+           .Accepts<UpdateShoppingListCommand>(ContentTypeJson)
            .Produces((int)HttpStatusCode.NoContent)
-           .ProducesProblem((int)HttpStatusCode.BadRequest, contentTypeJson)
-           .ProducesProblem((int)HttpStatusCode.NotFound, contentTypeJson)
-           .ProducesProblem((int)HttpStatusCode.InternalServerError, contentTypeJson);
+           .ProducesProblem((int)HttpStatusCode.BadRequest, ContentTypeProblemDetailsJson)
+           .ProducesProblem((int)HttpStatusCode.NotFound, ContentTypeProblemDetailsJson)
+           .ProducesProblem((int)HttpStatusCode.InternalServerError, ContentTypeProblemDetailsJson);
 
         if (app.Environment.IsProduction() == false)
         {
             app.MapOpenApi();
-            app.MapScalarApiReference();
+            app.MapScalarApiReference(sco => sco.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11));
         }
 
         return app;
@@ -58,13 +71,78 @@ public static class Endpoints
         return ResponseForQueryResult(qryResult);
     }
 
-    private static async Task<IResult> CreateShoppingListAsync(
+    public static Task DescribeGetShoppingListExamples(OpenApiOperation op)
+    {
+        if (op.OperationId == nameof(GetShoppingListAsync))
+        {
+            op.AddResponseExample<GetShoppingListResult>(
+                HttpStatusCode.OK,
+                new(Guid.NewGuid(), "My shopping list", [new(1, "Rice 5kg"), new(2, "Beans 1kg")]),
+                JsonConfiguration.JsonCtx.GetShoppingListResult);
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.BadRequest,
+                new()
+                {
+                    { nameof(ShoppingListErrors.InvalidId), ShoppingListErrors.InvalidId }
+                });
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.NotFound,
+                new()
+                {
+                    { nameof(ShoppingListErrors.ShoppingListNotFound), ShoppingListErrors.ShoppingListNotFound }
+                });
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.InternalServerError,
+                new()
+                {
+                    { nameof(ShoppingListErrors.InternalError), ShoppingListErrors.InternalError }
+                });
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public static async Task<IResult> CreateShoppingListAsync(
         [FromServices] CreateShoppingListHandler handler,
         [FromBody] CreateShoppingListCommand cmd)
     {
         var cmdResult = await handler.HandleAsync(cmd);
         // not using ResponseForCommandResult here because we want to return an object
         return cmdResult.Successful ? Results.Created(cmdResult.Id.ToString(), cmdResult) : Problem(cmdResult);
+    }
+
+    public static Task DescribeCreateShoppingListExamples(OpenApiOperation op)
+    {
+        if (op.OperationId == nameof(CreateShoppingListAsync))
+        {
+            op.AddRequestExample<CreateShoppingListCommand>(
+                new("My shopping list"),
+                JsonConfiguration.JsonCtx.CreateShoppingListCommand);
+
+            op.AddResponseExample<CreateShoppingListResult>(
+                HttpStatusCode.Created,
+                new(Guid.NewGuid(), "My shopping list", []),
+                JsonConfiguration.JsonCtx.CreateShoppingListResult);
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.BadRequest,
+                new()
+                {
+                    { nameof(ShoppingListErrors.BlankTitle), ShoppingListErrors.BlankTitle }
+                });
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.InternalServerError,
+                new()
+                {
+                    { nameof(ShoppingListErrors.InternalError), ShoppingListErrors.InternalError }
+                });
+        }
+
+        return Task.CompletedTask;
     }
 
     private static async Task<IResult> UpdateShoppingListAsync(
@@ -75,6 +153,44 @@ public static class Endpoints
         cmd = cmd with { Id = id };
         var cmdResult = await handler.HandleAsync(cmd);
         return ResponseForCommandResult(cmdResult);
+    }
+
+    public static Task DescribeUpdateShoppingListExamples(OpenApiOperation op)
+    {
+        if (op.OperationId == nameof(UpdateShoppingListAsync))
+        {
+            op.AddRequestExample<UpdateShoppingListCommand>(
+                new(Guid.NewGuid(), "My shopping list", [new(1, "Rice 5kg"), new(2, "Beans 1kg")]),
+                JsonConfiguration.JsonCtx.UpdateShoppingListCommand);
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.BadRequest,
+                new()
+                {
+                    { nameof(ShoppingListErrors.InvalidId), ShoppingListErrors.InvalidId },
+                    { nameof(ShoppingListErrors.BlankTitle), ShoppingListErrors.BlankTitle },
+                    { nameof(ShoppingListErrors.ItemsNull), ShoppingListErrors.ItemsNull },
+                    { nameof(ShoppingListErrors.BlankItemName), ShoppingListErrors.BlankItemName },
+                    { nameof(ShoppingListErrors.ItemQuantityZeroOrLess), ShoppingListErrors.ItemQuantityZeroOrLess },
+                    { nameof(ShoppingListErrors.RepeatedItems), ShoppingListErrors.RepeatedItems }
+                });
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.NotFound,
+                new()
+                {
+                    { nameof(ShoppingListErrors.ShoppingListNotFound), ShoppingListErrors.ShoppingListNotFound }
+                });
+
+            op.AddProblemDetailsResponseExamples(
+                HttpStatusCode.InternalServerError,
+                new()
+                {
+                    { nameof(ShoppingListErrors.InternalError), ShoppingListErrors.InternalError }
+                });
+        }
+
+        return Task.CompletedTask;
     }
 
     #region HELPERS
