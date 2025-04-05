@@ -89,6 +89,7 @@ jobs:
         --configuration Release `
         --runtime linux-x64 `
         -p:TreatWarningsAsErrors=False `
+        -p:PublishForProduction=True `
         --output $OUTPUT_FOLDER;
         
         chmod +x "$OUTPUT_FOLDER/CqrsExample.Api"

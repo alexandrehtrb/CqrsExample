@@ -1,11 +1,4 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using CqrsExample.Api.Configurations;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Templates.Themes;
 using SerilogTracing;
@@ -60,7 +53,7 @@ public static class Program
             .Instrument.AspNetCoreRequests()
             .TraceToSharedLogger();
 
-private static WebApplication BuildApp(string[] args, IConfiguration config)
+    private static WebApplication BuildApp(string[] args, IConfiguration config)
     {
         var webAppBuilder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +71,9 @@ private static WebApplication BuildApp(string[] args, IConfiguration config)
         services.ConfigureJsonOptions();
         services.AddSerilogLogger();
         services.AddOpenApiConfiguration();
-        services.AddEndpointsApiExplorer();
         services.AddDependencies(config);
+#if !PRODUCTION
+        services.AddEndpointsApiExplorer();
+#endif
     }
 }

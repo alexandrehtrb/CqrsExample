@@ -6,14 +6,15 @@
     <ImplicitUsings>Enable</ImplicitUsings>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	<NoWarn>$(NoWarn);1591</NoWarn>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <PublishTrimmed>True</PublishTrimmed>
     <TrimMode>Full</TrimMode>
     <PublishAot>True</PublishAot>
-	<PublishSingleFile>True</PublishSingleFile>
+    <PublishSingleFile>True</PublishSingleFile>
     <SelfContained>True</SelfContained>
-	
-	<Version>0.0.1</Version>
+    <DefineConstants Condition=" '$(PublishForProduction)' == 'True' ">$(DefineConstants);PRODUCTION</DefineConstants>
+
+    <Version>0.0.1</Version>
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <Copyright>AlexandreHTRB</Copyright>
@@ -26,8 +27,8 @@
     <PackageReference Include="SerilogTracing" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" Condition="'$(PublishForProduction)' != 'True'"/>
+    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" Condition="'$(PublishForProduction)' != 'True'" />
   </ItemGroup>
 
 </Project>
