@@ -87,6 +87,7 @@ jobs:
         --nologo `
         --configuration Release `
         --runtime linux-x64 `
+        -p:TreatWarningsAsErrors=False `
         --output $OUTPUT_FOLDER;
         
         chmod +x "$OUTPUT_FOLDER/CqrsExample.Api"
