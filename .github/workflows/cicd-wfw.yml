@@ -1,0 +1,117 @@
+name: CI-CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      runCD:
+        required: true
+        type: boolean
+
+jobs:
+  cicd:
+  
+    runs-on: ubuntu-latest
+
+    # start CI steps
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.x
+
+    - name: Restore solution
+      run: dotnet restore --nologo --verbosity quiet
+
+    - name: Audit CqrsExample.Api project
+      shell: pwsh
+      run: |
+        $projectPath = "./src/CqrsExample.Api/CqrsExample.Api.csproj"
+        $jsonObj = (dotnet list $projectPath package --vulnerable --include-transitive --format json) | ConvertFrom-Json;
+        $hasAnyVulnerability = ($jsonObj.projects[0].frameworks -ne $null);
+        if ($hasAnyVulnerability) {
+          dotnet list package --vulnerable --include-transitive;
+          exit 1;
+        }
+
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release --nologo --verbosity quiet
+
+    - name: Execute unit tests
+      run: dotnet test --no-build --configuration Release --nologo --verbosity quiet --filter FullyQualifiedName!~CqrsExample.Api.Tests --collect:"XPlat Code Coverage" --results-directory ./out/TestResults/
+
+    - name: Report unit tests coverage
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.4
+      with:
+        reports: ./out/TestResults/**/coverage.cobertura.xml
+        targetdir: ./out/TestResults
+        reporttypes: JsonSummary
+        customSettings: 'minimumCoverageThresholds:lineCoverage=90;minimumCoverageThresholds:branchCoverage=80'
+
+    # finished CI steps
+
+    # start CD steps
+    
+    - name: Install CycloneDX SBOM tool
+      if: ${{ inputs.runCD }}
+      run: dotnet tool install --global CycloneDX
+
+    - name: Read program version
+      if: ${{ inputs.runCD }}
+      shell: pwsh
+      run: |
+        ([XML]$apiCsprojXml = Get-Content ./src/CqrsExample.Api/CqrsExample.Api.csproj)
+        $versionName = $apiCsprojXml.Project.PropertyGroup.Version
+        echo "VERSION_NAME=${versionName}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Generate SBOM file
+      if: ${{ inputs.runCD }}
+      shell: pwsh
+      run: dotnet CycloneDX ./src/CqrsExample.Api/CqrsExample.Api.csproj -o ./out/ -f sbom_api.json -sv $env:VERSION_NAME --json
+
+    - name: Generate dlls
+      if: ${{ inputs.runCD }}
+      shell: pwsh
+      run: |
+        $OUTPUT_FOLDER = "./out/linux-x64"
+        
+        [void](New-Item $OUTPUT_FOLDER -ItemType Directory -ErrorAction Ignore);
+        
+        dotnet publish ./src/CqrsExample.Api/CqrsExample.Api.csproj `
+        --verbosity quiet `
+        --nologo `
+        --configuration Release `
+        --runtime linux-x64 `
+        --output $OUTPUT_FOLDER;
+        
+        chmod +x "$OUTPUT_FOLDER/CqrsExample.Api"
+
+    - name: Compress package
+      if: ${{ inputs.runCD }}
+      shell: pwsh
+      run: |
+        $OUTPUT_FOLDER = "./out/linux-x64"
+        $zipName = "CqrsExampleApi_${env:VERSION_NAME}_linux-x64.zip"
+        
+        cd $OUTPUT_FOLDER
+        zip -9 -r ../${zipName} *
+        cd ../..
+        
+        Remove-Item $OUTPUT_FOLDER -Force -Recurse -ErrorAction Ignore
+
+    - name: Upload artifacts to workflow results
+      if: ${{ inputs.runCD }}
+      uses: actions/upload-artifact@v4
+      with:
+        compression-level: 0 # artifacts already compressed
+        name: 'artifacts'
+        path: './out/'
+        overwrite: true
+
+    # finished CD steps
+
