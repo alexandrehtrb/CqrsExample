@@ -70,9 +70,9 @@ public static class Program
     {
         services.ConfigureJsonOptions();
         services.AddSerilogLogger();
-        services.AddOpenApiConfiguration();
         services.AddDependencies(config);
 #if !PRODUCTION
+        services.AddOpenApiConfiguration();
         services.AddEndpointsApiExplorer();
 #endif
     }
