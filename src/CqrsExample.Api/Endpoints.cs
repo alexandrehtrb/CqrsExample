@@ -7,12 +7,12 @@ using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Microsoft.AspNetCore.Mvc;
-using static CqrsExample.Api.Configurations.OpenApiConfiguration;
 #if !PRODUCTION
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using static CqrsExample.Api.Configurations.OpenApiConfiguration;
 #endif
 
 namespace CqrsExample.Api;
