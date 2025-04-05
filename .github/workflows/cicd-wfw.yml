@@ -5,6 +5,7 @@ on:
     inputs:
       runCD:
         required: true
+        default: true
         type: boolean
 
 jobs:
@@ -50,7 +51,7 @@ jobs:
       with:
         reports: ./out/TestResults/**/coverage.cobertura.xml
         targetdir: ./out/TestResults
-        reporttypes: JsonSummary
+        reporttypes: Html
         customSettings: 'minimumCoverageThresholds:lineCoverage=90;minimumCoverageThresholds:branchCoverage=80'
 
     # finished CI steps
