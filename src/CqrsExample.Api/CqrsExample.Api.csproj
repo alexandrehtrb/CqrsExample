@@ -6,6 +6,7 @@
     <ImplicitUsings>Enable</ImplicitUsings>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1591</NoWarn>
     <PublishTrimmed>True</PublishTrimmed>
     <TrimMode>Full</TrimMode>
     <PublishAot>True</PublishAot>
