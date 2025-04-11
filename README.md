@@ -29,4 +29,4 @@ The `rununittests.ps1` script runs the unit tests and generates a testing covera
 
 ## NativeAOT
 
-This project is prepared for NativeAOT compilation, however, the `PublishForProduction` is required during build to enable the preprocessor directive and to remove the non-compatible libraries.
+This project is NativeAOT and trimming compatible, through the `PublishAot` flag. Check out the API project's .csproj to understand how it works.

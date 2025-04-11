@@ -29,4 +29,4 @@ O script `rununittests.ps1` executa os testes unitários e gera um relatório de
 
 ## NativeAOT
 
-O projeto é preparado para compilação em NativeAOT, porém, é necessário passar a flag `PublishForProduction` durante o build para ativar a diretiva de pré-processamento e retirar as bibliotecas não-compatíveis.
+O projeto é preparado para compilação com trimming e em NativeAOT, através da flag `PublishAot`. Confira mais no arquivo csproj do projeto de API.
