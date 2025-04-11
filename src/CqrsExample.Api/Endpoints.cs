@@ -73,30 +73,36 @@ public static class Endpoints
     }
 
     private static async Task<IResult> GetShoppingListAsync(
+        [FromServices] ILogger<GetShoppingListHandler> logger,
         [FromServices] GetShoppingListHandler handler,
         [FromRoute] Guid id)
     {
         GetShoppingListQuery qry = new(id!);
         var qryResult = await handler.HandleAsync(qry);
+        logger.LogQuery("Get shopping list", "Failed to get shopping list", qry, qryResult);
         return ResponseForQueryResult(qryResult);
     }
 
     public static async Task<IResult> CreateShoppingListAsync(
+        [FromServices] ILogger<CreateShoppingListHandler> logger,
         [FromServices] CreateShoppingListHandler handler,
         [FromBody] CreateShoppingListCommand cmd)
     {
         var cmdResult = await handler.HandleAsync(cmd);
         // not using ResponseForCommandResult here because we want to return an object
+        logger.LogCommand("Create shopping list", "Failed to create shopping list", cmd, cmdResult);
         return cmdResult.Successful ? Results.Created(cmdResult.Id.ToString(), cmdResult) : Problem(cmdResult);
     }
 
     private static async Task<IResult> UpdateShoppingListAsync(
+        [FromServices] ILogger<UpdateShoppingListHandler> logger,
         [FromServices] UpdateShoppingListHandler handler,
         [FromRoute] Guid id,
         [FromBody] UpdateShoppingListCommand cmd)
     {
         cmd = cmd with { Id = id };
         var cmdResult = await handler.HandleAsync(cmd);
+        logger.LogCommand("Update shopping list", "Failed to update shopping list", cmd, cmdResult);
         return ResponseForCommandResult(cmdResult);
     }
 
@@ -264,6 +270,54 @@ public static class Endpoints
 
     private static IResult ResponseForQueryResult<T>(T qryResult) where T : QueryResult =>
         qryResult.Successful ? Results.Ok(qryResult) : Problem(qryResult);
+
+    private static void LogCommand<T, C, R>(this ILogger<T> logger, string successMsg, string failMsg, C cmd, R cmdResult)
+        where C : Command
+        where R : CommandResult
+    {
+        using (logger.BeginScope("{@cmd}", cmd))
+        {
+            if (cmdResult.Successful)
+            {
+                using (logger.BeginScope("{@cmdResult}", cmdResult))
+                {
+                    logger.LogInformation(successMsg);
+                }
+            }
+            else
+            {
+                using (logger.BeginScope("{@cmdResultFailureType}", cmdResult.FailureType))
+                using (logger.BeginScope("{@cmdResultError}", cmdResult.Error))
+                {
+                    logger.LogWarning(failMsg);
+                }
+            }
+        }
+    }
+
+    private static void LogQuery<T, Q, R>(this ILogger<T> logger, string successMsg, string failMsg, Q qry, R qryResult)
+        where Q : Query
+        where R : QueryResult
+    {
+        using (logger.BeginScope("{@qry}", qry))
+        {
+            if (qryResult.Successful)
+            {
+                using (logger.BeginScope("{@qryResult}", qryResult))
+                {
+                    logger.LogInformation(successMsg);
+                }
+            }
+            else
+            {
+                using (logger.BeginScope("{@qryResultFailureType}", qryResult.FailureType))
+                using (logger.BeginScope("{@qryResultError}", qryResult.Error))
+                {
+                    logger.LogWarning(failMsg);
+                }
+            }
+        }
+    }
 
     #endregion
 }

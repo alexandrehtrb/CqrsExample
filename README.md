@@ -26,3 +26,7 @@ The project requires only [.NET 9](https://dotnet.microsoft.com/) installed. The
 The `runserverlocal.ps1` script builds and runs the API, listening on `https://localhost:5001`.
 
 The `rununittests.ps1` script runs the unit tests and generates a testing coverage report at a `TestResults` folder. It requires the [ReportGenerator](https://github.com/danielpalme/ReportGenerator) installed.
+
+## NativeAOT
+
+This project is prepared for NativeAOT compilation, however, the `PublishForProduction` is required during build to enable the preprocessor directive and to remove the non-compatible libraries.

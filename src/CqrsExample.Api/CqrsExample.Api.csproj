@@ -7,11 +7,11 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <PublishTrimmed>True</PublishTrimmed>
-    <TrimMode>Full</TrimMode>
-    <PublishAot>True</PublishAot>
     <PublishSingleFile>True</PublishSingleFile>
     <SelfContained>True</SelfContained>
+    <PublishTrimmed Condition=" '$(PublishForProduction)' == 'True' ">True</PublishTrimmed>
+    <TrimMode Condition=" '$(PublishForProduction)' == 'True' ">Full</TrimMode>
+    <PublishAot Condition=" '$(PublishForProduction)' == 'True' ">True</PublishAot>
     <DefineConstants Condition=" '$(PublishForProduction)' == 'True' ">$(DefineConstants);PRODUCTION</DefineConstants>
 
     <Version>0.0.1</Version>
@@ -23,12 +23,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\CqrsExample.Domain\CqrsExample.Domain.csproj" />
     <ProjectReference Include="..\..\src\CqrsExample.Infrastructure\CqrsExample.Infrastructure.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(PublishForProduction)' != 'True'">
+    <!-- Serilog and OpenApi do not fully support NativeAOT yet, -->
+    <!-- so we remove those libraries on production builds    -->
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="SerilogTracing" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" Condition="'$(PublishForProduction)' != 'True'"/>
-    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" Condition="'$(PublishForProduction)' != 'True'" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
   </ItemGroup>
 
 </Project>

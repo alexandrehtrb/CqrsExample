@@ -42,6 +42,16 @@ public static class JsonConfiguration
 [JsonSerializable(typeof(CreateShoppingListResult))]
 [JsonSerializable(typeof(UpdateShoppingListResult))]
 [JsonSerializable(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails))]
+#if PRODUCTION
+// needed for ClefLogger
+[JsonSerializable(typeof(CqrsExample.Api.Logging.ClefLogMessage))]
+[JsonSerializable(typeof(double))]
+[JsonSerializable(typeof(long))]
+[JsonSerializable(typeof(Microsoft.AspNetCore.Http.HostString))]
+[JsonSerializable(typeof(Microsoft.AspNetCore.Http.QueryString))]
+[JsonSerializable(typeof(Microsoft.AspNetCore.Http.PathString))]
+[JsonSerializable(typeof(Microsoft.AspNetCore.Http.FragmentString))]
+#endif
 public partial class ApiJsonSrcGenContext : JsonSerializerContext
 {
 }

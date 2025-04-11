@@ -1,3 +1,5 @@
+#if !PRODUCTION
+
 using Serilog;
 
 namespace CqrsExample.Api.Configurations;
@@ -8,3 +10,5 @@ public static class SerilogConfiguration
         services.AddSingleton(Serilog.Log.Logger)
                 .AddSerilog();
 }
+
+#endif

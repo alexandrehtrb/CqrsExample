@@ -11,14 +11,17 @@ public static class Program
     public static int Main(string[] args)
     {
         var config = LoadConfigs();
+#if !PRODUCTION
         SetupSerilog(config);
         var listener = SetupActivityListener();
 
         try
         {
             Log.Information("Starting web host");
+#endif
             BuildApp(args, config).Run();
             return 0;
+#if !PRODUCTION
         }
         catch (Exception ex)
         {
@@ -30,6 +33,7 @@ public static class Program
             Log.CloseAndFlush();
             listener.Dispose();
         }
+#endif
     }
 
     private static IConfiguration LoadConfigs() =>
@@ -40,6 +44,7 @@ public static class Program
             .AddEnvironmentVariables()
             .Build();
 
+#if !PRODUCTION
     private static void SetupSerilog(IConfiguration configuration) =>
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
@@ -53,11 +58,19 @@ public static class Program
             .Instrument.AspNetCoreRequests()
             .TraceToSharedLogger();
 
+#endif
+
     private static WebApplication BuildApp(string[] args, IConfiguration config)
     {
         var webAppBuilder = WebApplication.CreateBuilder(args);
 
+#if !PRODUCTION
         webAppBuilder.Host.UseSerilog();
+#else
+        webAppBuilder.Logging
+                     .ClearProviders()
+                     .AddProvider(new CqrsExample.Api.Logging.ClefLoggerProvider());
+#endif
         webAppBuilder.Services.ConfigureServices(config);
 
         var webApp = webAppBuilder.Build();
@@ -69,9 +82,9 @@ public static class Program
     private static void ConfigureServices(this IServiceCollection services, IConfiguration config)
     {
         services.ConfigureJsonOptions();
-        services.AddSerilogLogger();
         services.AddDependencies(config);
 #if !PRODUCTION
+        services.AddSerilogLogger();
         services.AddOpenApiConfiguration();
         services.AddEndpointsApiExplorer();
 #endif
