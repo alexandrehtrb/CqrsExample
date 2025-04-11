@@ -1,8 +1,10 @@
 using CqrsExample.Api.Configurations;
+#if !PRODUCTION
 using Serilog;
 using Serilog.Templates.Themes;
 using SerilogTracing;
 using SerilogTracing.Expressions;
+#endif
 
 namespace CqrsExample.Api;
 
