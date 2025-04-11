@@ -1,4 +1,4 @@
-#if !PRODUCTION
+#if !NATIVEAOT
 
 using System.Net;
 using System.Text.Json;

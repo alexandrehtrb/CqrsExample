@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -9,10 +9,11 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <PublishSingleFile>True</PublishSingleFile>
     <SelfContained>True</SelfContained>
-    <PublishTrimmed Condition=" '$(PublishForProduction)' == 'True' ">True</PublishTrimmed>
-    <TrimMode Condition=" '$(PublishForProduction)' == 'True' ">Full</TrimMode>
-    <PublishAot Condition=" '$(PublishForProduction)' == 'True' ">True</PublishAot>
-    <DefineConstants Condition=" '$(PublishForProduction)' == 'True' ">$(DefineConstants);PRODUCTION</DefineConstants>
+    <!-- To test behaviour in Visual Studio, change value below -->
+    <PublishAot>False</PublishAot>
+    <PublishTrimmed Condition=" '$(PublishAot)' == 'True' ">True</PublishTrimmed>
+    <TrimMode Condition=" '$(PublishAot)' == 'True' ">Full</TrimMode>
+    <DefineConstants Condition=" '$(PublishAot)' == 'True' ">$(DefineConstants);NATIVEAOT</DefineConstants>
 
     <Version>0.0.1</Version>
     <FileVersion>$(Version)</FileVersion>
@@ -25,9 +26,9 @@
     <ProjectReference Include="..\..\src\CqrsExample.Infrastructure\CqrsExample.Infrastructure.csproj" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(PublishForProduction)' != 'True'">
+  <ItemGroup Condition="'$(PublishAot)' != 'True'">
     <!-- Serilog and OpenApi do not fully support NativeAOT yet, -->
-    <!-- so we remove those libraries on production builds    -->
+    <!-- so we remove those libraries for this kind of compilation  -->
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="SerilogTracing" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />

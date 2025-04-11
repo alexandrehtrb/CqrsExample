@@ -7,6 +7,10 @@ on:
         required: true
         default: true
         type: boolean
+      nativeAot:
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   cicd:
@@ -75,7 +79,7 @@ jobs:
       shell: pwsh
       run: dotnet CycloneDX ./src/CqrsExample.Api/CqrsExample.Api.csproj -o ./out/ -f sbom_api.json -sv $env:VERSION_NAME --json
 
-    - name: Generate dlls
+    - name: Generate DLLs
       if: ${{ inputs.runCD }}
       shell: pwsh
       run: |
@@ -89,10 +93,12 @@ jobs:
         --configuration Release `
         --runtime linux-x64 `
         -p:TreatWarningsAsErrors=False `
-        -p:PublishForProduction=True `
+        -p:PublishAot=${env:NATIVEAOT} `
         --output $OUTPUT_FOLDER;
         
         chmod +x "$OUTPUT_FOLDER/CqrsExample.Api"
+      env:
+        NATIVEAOT: ${{ inputs.nativeAot }}
 
     - name: Compress package
       if: ${{ inputs.runCD }}

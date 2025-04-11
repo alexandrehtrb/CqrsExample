@@ -42,7 +42,7 @@ public static class JsonConfiguration
 [JsonSerializable(typeof(CreateShoppingListResult))]
 [JsonSerializable(typeof(UpdateShoppingListResult))]
 [JsonSerializable(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails))]
-#if PRODUCTION
+#if NATIVEAOT
 // needed for ClefLogger
 [JsonSerializable(typeof(CqrsExample.Api.Logging.ClefLogMessage))]
 [JsonSerializable(typeof(double))]

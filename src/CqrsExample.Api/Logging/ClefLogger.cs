@@ -1,4 +1,4 @@
-#if PRODUCTION
+#if NATIVEAOT
 
 using CqrsExample.Api.Configurations;
 using System.Text.Json.Serialization;
@@ -78,7 +78,7 @@ public sealed class ClefLogger(
             CategoryName: categoryName,
             LogLevel: Enum.GetName(logLevel),
             Message: formatter(state, exception),
-            Exception: exception is null ? null : new(exception),
+            Exception: exception?.ToString(),
             Properties: filteredProps.Any() ? filteredProps.ToDictionary(kv => kv.Key, kv => kv.Value) : null,
             Scopes: scopesList.Count > 0 ? scopesList : null);
 
@@ -95,11 +95,11 @@ public sealed class ClefLogger(
                 CategoryName: categoryName,
                 LogLevel: Enum.GetName(LogLevel.Warning),
                 Message: formatter(state, exception),
-                Exception: exception is null ? null : new(exception),
+                Exception: exception?.ToString(),
                 Properties: new()
                 {
                     { "WARNING", "Could not serialize original logging message to CLEF JSON." },
-                    { "ClefJsonException", new ClefLogMessageException(jsonEx) }
+                    { "ClefJsonException", jsonEx.ToString() }
                 },
                 Scopes: null);
 
@@ -125,18 +125,8 @@ public sealed record ClefLogMessage(
     [property: JsonPropertyName("@c")] string CategoryName,
     [property: JsonPropertyName("@l")] string? LogLevel,
     [property: JsonPropertyName("@m")] string? Message,
-    [property: JsonPropertyName("@x")] ClefLogMessageException? Exception,
+    [property: JsonPropertyName("@x")] string? Exception,
     [property: JsonPropertyName("@props")] Dictionary<string, object?>? Properties,
     [property: JsonPropertyName("@scopes")] List<Dictionary<string, object?>>? Scopes);
-
-public sealed record ClefLogMessageException(
-    string Name,
-    string Message,
-    string? StackTrace,
-    string? InnerException)
-{
-    public ClefLogMessageException(Exception ex)
-    : this(ex.GetType().Name, ex.Message, ex.StackTrace, ex.InnerException?.ToString()) { }
-}
 
 #endif

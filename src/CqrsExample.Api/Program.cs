@@ -1,5 +1,5 @@
 using CqrsExample.Api.Configurations;
-#if !PRODUCTION
+#if !NATIVEAOT
 using Serilog;
 using Serilog.Templates.Themes;
 using SerilogTracing;
@@ -13,7 +13,7 @@ public static class Program
     public static int Main(string[] args)
     {
         var config = LoadConfigs();
-#if !PRODUCTION
+#if !NATIVEAOT
         SetupSerilog(config);
         var listener = SetupActivityListener();
 
@@ -23,7 +23,7 @@ public static class Program
 #endif
             BuildApp(args, config).Run();
             return 0;
-#if !PRODUCTION
+#if !NATIVEAOT
         }
         catch (Exception ex)
         {
@@ -46,7 +46,7 @@ public static class Program
             .AddEnvironmentVariables()
             .Build();
 
-#if !PRODUCTION
+#if !NATIVEAOT
     private static void SetupSerilog(IConfiguration configuration) =>
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
@@ -66,7 +66,7 @@ public static class Program
     {
         var webAppBuilder = WebApplication.CreateBuilder(args);
 
-#if !PRODUCTION
+#if !NATIVEAOT
         webAppBuilder.Host.UseSerilog();
 #else
         webAppBuilder.Logging
@@ -85,7 +85,7 @@ public static class Program
     {
         services.ConfigureJsonOptions();
         services.AddDependencies(config);
-#if !PRODUCTION
+#if !NATIVEAOT
         services.AddSerilogLogger();
         services.AddOpenApiConfiguration();
         services.AddEndpointsApiExplorer();

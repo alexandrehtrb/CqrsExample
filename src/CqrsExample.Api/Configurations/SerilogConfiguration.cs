@@ -1,4 +1,4 @@
-#if !PRODUCTION
+#if !NATIVEAOT
 
 using Serilog;
 

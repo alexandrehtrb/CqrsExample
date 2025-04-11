@@ -7,7 +7,7 @@ using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Microsoft.AspNetCore.Mvc;
-#if !PRODUCTION
+#if !NATIVEAOT
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -25,7 +25,7 @@ public static class Endpoints
     public static WebApplication MapAllEndpoints(this WebApplication app)
     {
         app.MapGet("/{id:Guid}", GetShoppingListAsync)
-#if !PRODUCTION
+#if !NATIVEAOT
            .WithName(nameof(GetShoppingListAsync)) // required for examples
            .WithTags("tag1")
            .WithSummary("Retrieves a shopping list.")
@@ -38,7 +38,7 @@ public static class Endpoints
            ;
 
         app.MapPost("/", CreateShoppingListAsync)
-#if !PRODUCTION
+#if !NATIVEAOT
            .WithName(nameof(CreateShoppingListAsync)) // required for examples
            .WithTags("tag1")
            .WithSummary("Creates a new shopping list.")
@@ -51,7 +51,7 @@ public static class Endpoints
            ;
 
         app.MapPut("/{id:Guid}", UpdateShoppingListAsync)
-#if !PRODUCTION
+#if !NATIVEAOT
            .WithName(nameof(UpdateShoppingListAsync)) // required for examples
            .WithTags("tag1")
            .WithSummary("Updates a shopping list.")
@@ -64,7 +64,7 @@ public static class Endpoints
 #endif
            ;
 
-#if !PRODUCTION
+#if !NATIVEAOT
         app.MapOpenApi();
         app.MapScalarApiReference(sco => sco.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11));
 #endif
@@ -106,7 +106,7 @@ public static class Endpoints
         return ResponseForCommandResult(cmdResult);
     }
 
-#if !PRODUCTION   
+#if !NATIVEAOT   
 
     #region REQUEST AND RESPONSE EXAMPLES
 
