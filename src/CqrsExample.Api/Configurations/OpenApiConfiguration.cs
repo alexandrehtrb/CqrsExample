@@ -93,7 +93,7 @@ public static class OpenApiConfiguration
                             Title = kv.Value.Item1,
                             Detail = kv.Value.Item2
                         },
-                        JsonConfiguration.JsonCtx.ProblemDetails))
+                        ApiJsonSrcGenContext.Default.ProblemDetails))
                 });
 
     private static string MapHttpStatusCodeToProblemDetailsType(HttpStatusCode httpStatusCode) =>

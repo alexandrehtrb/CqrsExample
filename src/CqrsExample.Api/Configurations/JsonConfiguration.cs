@@ -1,6 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
@@ -10,29 +11,8 @@ namespace CqrsExample.Api.Configurations;
 
 public static class JsonConfiguration
 {
-    public static readonly ApiJsonSrcGenContext JsonCtx =
-        new(SetupDefaultJsonOptions(new(), setupTypeInfoResolver: false));
-
-    public static readonly JsonSerializerOptions DefaultJsonOptions =
-        SetupDefaultJsonOptions(new(), true);
-
     public static IServiceCollection ConfigureJsonOptions(this IServiceCollection services) =>
-        services.Configure<JsonOptions>(o => SetupDefaultJsonOptions(o.SerializerOptions, setupTypeInfoResolver: true));
-
-    public static JsonSerializerOptions SetupDefaultJsonOptions(JsonSerializerOptions options, bool setupTypeInfoResolver)
-    {
-        options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-        options.WriteIndented = false;
-        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        options.AllowTrailingCommas = true;
-        options.ReadCommentHandling = JsonCommentHandling.Skip;
-        if (setupTypeInfoResolver)
-        {
-            options.TypeInfoResolver = ApiJsonSrcGenContext.Default;
-        }
-        return options;
-    }
+        services.Configure<JsonOptions>(o => o.SerializerOptions.TypeInfoResolver = ApiJsonSrcGenContext.Default);
 }
 
 [JsonSerializable(typeof(GetShoppingListQuery))]
@@ -44,14 +24,38 @@ public static class JsonConfiguration
 [JsonSerializable(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails))]
 #if NATIVEAOT
 // needed for ClefLogger
-[JsonSerializable(typeof(CqrsExample.Api.Logging.ClefLogMessage))]
+[JsonSerializable(typeof(Dictionary<string, object?>))]
 [JsonSerializable(typeof(double))]
 [JsonSerializable(typeof(long))]
-[JsonSerializable(typeof(Microsoft.AspNetCore.Http.HostString))]
-[JsonSerializable(typeof(Microsoft.AspNetCore.Http.QueryString))]
-[JsonSerializable(typeof(Microsoft.AspNetCore.Http.PathString))]
-[JsonSerializable(typeof(Microsoft.AspNetCore.Http.FragmentString))]
 #endif
+[JsonSourceGenerationOptions(
+    WriteIndented = false,
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    UseStringEnumConverter = true,
+    AllowTrailingCommas = true,
+    ReadCommentHandling = JsonCommentHandling.Skip,
+    GenerationMode = JsonSourceGenerationMode.Default)]
 public partial class ApiJsonSrcGenContext : JsonSerializerContext
 {
+    static ApiJsonSrcGenContext()
+    {
+        // replace default context
+        Default = new ApiJsonSrcGenContext(CreateJsonSerializerOptions(Default));
+    }
+
+    private static JsonSerializerOptions CreateJsonSerializerOptions(ApiJsonSrcGenContext defaultContext)
+    {
+        var encoderSettings = new TextEncoderSettings();
+        encoderSettings.AllowRange(UnicodeRanges.All);
+        //encoderSettings.AllowRange(UnicodeRanges.BasicLatin);
+        //encoderSettings.AllowRange(UnicodeRanges.Latin1Supplement); // æøå etc.
+
+        var options = new JsonSerializerOptions(defaultContext.GeneratedSerializerOptions!)
+        {
+            Encoder = JavaScriptEncoder.Create(encoderSettings)
+        };
+
+        return options;
+    }
 }

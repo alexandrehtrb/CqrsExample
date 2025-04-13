@@ -1,11 +1,17 @@
 #if NATIVEAOT
 
 using CqrsExample.Api.Configurations;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using System.Collections.Concurrent;
 
 namespace CqrsExample.Api.Logging;
+
+public sealed class ClefLoggerProvider : ILoggerProvider
+{
+    public ILogger CreateLogger(string categoryName) =>
+        new ClefLogger(categoryName, new LoggerExternalScopeProvider());
+
+    public void Dispose() { }
+}
 
 // This is a very opinionated Logger that
 // outputs CLEF <https://clef-json.org/> messages to Console.
@@ -16,117 +22,93 @@ public sealed class ClefLogger(
     string categoryName,
     IExternalScopeProvider? scopeProvider) : ILogger
 {
-    private static readonly EventId requestFinishedEventId = new(0x49848, "HttpRequestFinished");
+    private static readonly string[] logsToIgnore = [
+        "Request starting",
+        "Executing",
+        "Setting HTTP status code",
+        "Executed",
+        "Writing value",
+        "Write content",
+        "Sending file",
+        "Request reached the end of the middleware pipeline without being handled by application code."
+    ];
 
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull =>
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull =>
         scopeProvider?.Push(state) ?? default;
 
-    public bool IsEnabled(LogLevel logLevel) =>
-        true;
+    public bool IsEnabled(LogLevel logLevel) => true;
+
+    private static bool FilterProperties(KeyValuePair<string, object?> kv) =>
+        kv.Key != "{OriginalFormat}"
+        && kv.Value != null
+        && (kv.Value is string s ? !string.IsNullOrEmpty(s) : true);
+
+    private static bool ShouldIgnoreLog(string? originalFormat) =>
+        originalFormat is null || logsToIgnore.Any(originalFormat.StartsWith);
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        static bool IsNotUnwantedProperty(KeyValuePair<string, object?> kv) =>
-            kv.Key != "{OriginalFormat}" && (kv.Value is string s ? !string.IsNullOrEmpty(s) : kv.Value != null);
-
-        if (state is not IEnumerable<KeyValuePair<string, object?>> dict)
-        {
+        if (state is not IEnumerable<KeyValuePair<string, object?>> msgProps)
             return;
-        }
 
-        string? originalFormat = (string?)dict.FirstOrDefault(kv => kv.Key == "{OriginalFormat}").Value;
+        string? originalFormat = (string?)msgProps.FirstOrDefault(kv => kv.Key == "{OriginalFormat}").Value;
 
-        string[] msgsToIgnore = [
-            "Request starting",
-            "Executing",
-            "Setting HTTP status code",
-            "Executed",
-            "Writing value",
-            "Write content",
-            "Sending file",
-        ];
-        foreach (string msgStart in msgsToIgnore)
-        {
-            if (originalFormat is not null && originalFormat.StartsWith(msgStart))
-                return;
-        }
+        if (ShouldIgnoreLog(originalFormat))
+            return;
 
-        if (originalFormat is not null && originalFormat.StartsWith("Request finished"))
-        {
-            eventId = requestFinishedEventId;
-        }
-
-        List<Dictionary<string, object?>> scopesList = new();
-
+        List<IEnumerable<KeyValuePair<string, object?>>>? scopes = new();
         scopeProvider?.ForEachScope((scope, st) =>
         {
             if (scope is IEnumerable<KeyValuePair<string, object?>> scopeItems)
             {
-                scopesList.Add(scopeItems.Where(IsNotUnwantedProperty).ToDictionary(kv => kv.Key, kv => kv.Value));
-            }
-            else
-            {
-                scopesList.Add(new() { { "Scope", scope?.ToString() } });
+                scopes.Add(scopeItems.Where(FilterProperties));
             }
         }, state);
 
-        var filteredProps = dict.Where(IsNotUnwantedProperty);
+        IEnumerable<KeyValuePair<string, object?>> standardProps =
+        [
+            new("@i", eventId.Name),
+            new("@t", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ")),
+            new("@c", categoryName),
+            new("@l", Enum.GetName(logLevel)),
+            //new("@m", formatter(state, exception)),
+            new("@mt", originalFormat),
+            new("@x", exception?.ToString())
+        ];
 
-        ClefLogMessage msg = new(
-            EventId: eventId.Name,
-            Timestamp: DateTimeOffset.Now,
-            CategoryName: categoryName,
-            LogLevel: Enum.GetName(logLevel),
-            Message: formatter(state, exception),
-            Exception: exception?.ToString(),
-            Properties: filteredProps.Any() ? filteredProps.ToDictionary(kv => kv.Key, kv => kv.Value) : null,
-            Scopes: scopesList.Count > 0 ? scopesList : null);
+        var msg = standardProps
+            .Concat(msgProps.Where(FilterProperties))
+            .Concat(scopes.SelectMany(x => x))
+            // avoid repeated keys
+            .DistinctBy(kv => kv.Key)
+            // removing null values for JSON
+            .Where(x => x.Value is not null)
+            .ToDictionary();
 
         try
         {
-            // TODO: Use queue and buffer to avoid concurrency
-            Console.WriteLine(JsonSerializer.Serialize(msg, JsonConfiguration.JsonCtx.ClefLogMessage));
+            WriteLogLine(msg);
         }
         catch (Exception jsonEx)
         {
-            msg = new(
-                EventId: null,
-                Timestamp: DateTimeOffset.Now,
-                CategoryName: categoryName,
-                LogLevel: Enum.GetName(LogLevel.Warning),
-                Message: formatter(state, exception),
-                Exception: exception?.ToString(),
-                Properties: new()
-                {
-                    { "WARNING", "Could not serialize original logging message to CLEF JSON." },
-                    { "ClefJsonException", jsonEx.ToString() }
-                },
-                Scopes: null);
+            msg = standardProps
+                .Append(new("WARNING", "Could not serialize original logging message to CLEF JSON."))
+                .Append(new("JsonException", jsonEx.ToString()))
+                .ToDictionary();
 
-            // TODO: Use queue and buffer to avoid concurrency
-            Console.WriteLine(JsonSerializer.Serialize(msg, JsonConfiguration.JsonCtx.ClefLogMessage));
-        }
-        finally
-        {
-            Console.WriteLine();
+            WriteLogLine(msg);
         }
     }
-}
 
-public sealed class ClefLoggerProvider : ILoggerProvider
-{
-    public ILogger CreateLogger(string categoryName) => new ClefLogger(categoryName, new LoggerExternalScopeProvider());
-    public void Dispose() { }
+    // TODO: Use queue to avoid concurrency
+    // Change output if you want: file, remote log server, etc.
+    private void WriteLogLine(Dictionary<string, object?> msg)
+    {
+        string json = JsonSerializer.Serialize(msg, ApiJsonSrcGenContext.Default.DictionaryStringObject);
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.WriteLine(json);
+    }
 }
-
-public sealed record ClefLogMessage(
-    [property: JsonPropertyName("@i")] string? EventId,
-    [property: JsonPropertyName("@t")] DateTimeOffset Timestamp,
-    [property: JsonPropertyName("@c")] string CategoryName,
-    [property: JsonPropertyName("@l")] string? LogLevel,
-    [property: JsonPropertyName("@m")] string? Message,
-    [property: JsonPropertyName("@x")] string? Exception,
-    [property: JsonPropertyName("@props")] Dictionary<string, object?>? Properties,
-    [property: JsonPropertyName("@scopes")] List<Dictionary<string, object?>>? Scopes);
 
 #endif

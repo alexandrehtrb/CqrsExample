@@ -1,15 +1,12 @@
 using System.Net;
-using CqrsExample.Api.Configurations;
 using CqrsExample.Domain.BaseAbstractions;
-using CqrsExample.Domain.Features.Shopping;
-using CqrsExample.Domain.Features.Shopping.Common.Entities;
 using CqrsExample.Domain.Features.Shopping.CreateList;
 using CqrsExample.Domain.Features.Shopping.GetList;
 using CqrsExample.Domain.Features.Shopping.UpdateList;
 using Microsoft.AspNetCore.Mvc;
 #if !NATIVEAOT
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Any;
+using CqrsExample.Api.Configurations;
+using CqrsExample.Domain.Features.Shopping;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using static CqrsExample.Api.Configurations.OpenApiConfiguration;
@@ -117,7 +114,7 @@ public static class Endpoints
             op.AddResponseExample<GetShoppingListResult>(
                 HttpStatusCode.OK,
                 new(Guid.NewGuid(), "My shopping list", [new(1, "Rice 5kg"), new(2, "Beans 1kg")]),
-                JsonConfiguration.JsonCtx.GetShoppingListResult);
+                ApiJsonSrcGenContext.Default.GetShoppingListResult);
 
             op.AddProblemDetailsResponseExamples(
                 HttpStatusCode.BadRequest,
@@ -150,12 +147,12 @@ public static class Endpoints
         {
             op.AddRequestExample<CreateShoppingListCommand>(
                 new("My shopping list"),
-                JsonConfiguration.JsonCtx.CreateShoppingListCommand);
+                ApiJsonSrcGenContext.Default.CreateShoppingListCommand);
 
             op.AddResponseExample<CreateShoppingListResult>(
                 HttpStatusCode.Created,
                 new(Guid.NewGuid(), "My shopping list", []),
-                JsonConfiguration.JsonCtx.CreateShoppingListResult);
+                ApiJsonSrcGenContext.Default.CreateShoppingListResult);
 
             op.AddProblemDetailsResponseExamples(
                 HttpStatusCode.BadRequest,
@@ -181,7 +178,7 @@ public static class Endpoints
         {
             op.AddRequestExample<UpdateShoppingListCommand>(
                 new(Guid.NewGuid(), "My shopping list", [new(1, "Rice 5kg"), new(2, "Beans 1kg")]),
-                JsonConfiguration.JsonCtx.UpdateShoppingListCommand);
+                ApiJsonSrcGenContext.Default.UpdateShoppingListCommand);
 
             op.AddProblemDetailsResponseExamples(
                 HttpStatusCode.BadRequest,
@@ -286,8 +283,7 @@ public static class Endpoints
             }
             else
             {
-                using (logger.BeginScope("{@cmdResultFailureType}", cmdResult.FailureType))
-                using (logger.BeginScope("{@cmdResultError}", cmdResult.Error))
+                using (logger.BeginScope("{@cmdResultFailureType} {@cmdResultError}", cmdResult.FailureType, cmdResult.Error))
                 {
                     logger.LogWarning(failMsg);
                 }
@@ -310,8 +306,7 @@ public static class Endpoints
             }
             else
             {
-                using (logger.BeginScope("{@qryResultFailureType}", qryResult.FailureType))
-                using (logger.BeginScope("{@qryResultError}", qryResult.Error))
+                using (logger.BeginScope("{@qryResultFailureType} {@qryResultError}", qryResult.FailureType, qryResult.Error))
                 {
                     logger.LogWarning(failMsg);
                 }
