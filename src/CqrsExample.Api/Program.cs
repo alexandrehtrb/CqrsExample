@@ -64,11 +64,17 @@ public static class Program
 
     private static WebApplication BuildApp(string[] args, IConfiguration config)
     {
-        var webAppBuilder = WebApplication.CreateBuilder(args);
 
 #if !NATIVEAOT
+        var webAppBuilder = WebApplication.CreateBuilder(args);
         webAppBuilder.Host.UseSerilog();
 #else
+        // slim builder --> no HTTP/3 and no HTTPS
+        var webAppBuilder = WebApplication.CreateSlimBuilder(args);
+
+        // setup HTTPS manually
+        webAppBuilder.WebHost.UseKestrelHttpsConfiguration();
+
         webAppBuilder.Logging
                      .ClearProviders()
                      .AddProvider(new CqrsExample.Api.Logging.ClefLoggerProvider());
