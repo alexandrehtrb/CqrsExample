@@ -10,9 +10,11 @@
     <PublishSingleFile>True</PublishSingleFile>
     <SelfContained>True</SelfContained>
     <!-- To test behaviour in Visual Studio, change value below -->
-    <PublishAot>False</PublishAot>
+    <PublishAot>True</PublishAot>
+    <OptimizationPreference Condition=" '$(PublishAot)' == 'True' ">Speed</OptimizationPreference>
     <PublishTrimmed Condition=" '$(PublishAot)' == 'True' ">True</PublishTrimmed>
     <TrimMode Condition=" '$(PublishAot)' == 'True' ">Full</TrimMode>
+    <InvariantGlobalization Condition=" '$(PublishAot)' == 'True' ">true</InvariantGlobalization>
     <DefineConstants Condition=" '$(PublishAot)' == 'True' ">$(DefineConstants);NATIVEAOT</DefineConstants>
 
     <Version>0.0.1</Version>
