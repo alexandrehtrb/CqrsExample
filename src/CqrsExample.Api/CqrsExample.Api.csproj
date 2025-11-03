@@ -10,7 +10,7 @@
     <PublishSingleFile>True</PublishSingleFile>
     <SelfContained>True</SelfContained>
     <!-- To test behaviour in Visual Studio, change value below -->
-    <PublishAot>True</PublishAot>
+    <PublishAot>False</PublishAot>
     <OptimizationPreference Condition=" '$(PublishAot)' == 'True' ">Speed</OptimizationPreference>
     <PublishTrimmed Condition=" '$(PublishAot)' == 'True' ">True</PublishTrimmed>
     <TrimMode Condition=" '$(PublishAot)' == 'True' ">Full</TrimMode>
@@ -35,8 +35,8 @@
     <PackageReference Include="SerilogTracing" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />
     <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.9.0" />
   </ItemGroup>
 
 </Project>
