@@ -28,7 +28,7 @@ jobs:
     - name: Install .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.x
+        dotnet-version: 10.x
 
     - name: Restore solution
       run: dotnet restore --nologo --verbosity quiet
