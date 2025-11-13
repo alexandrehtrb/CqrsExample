@@ -1,0 +1,17 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/CqrsExample.Api/CqrsExample.Api.csproj" />
+    <Project Path="src/CqrsExample.Domain/CqrsExample.Domain.csproj" />
+    <Project Path="src/CqrsExample.Infrastructure/CqrsExample.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <File Path="tests/Shopping List API.pororoca_collection.json" />
+    <Project Path="tests/CqrsExample.Api.Tests/CqrsExample.Api.Tests.csproj" />
+    <Project Path="tests/CqrsExample.Domain.Tests/CqrsExample.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
