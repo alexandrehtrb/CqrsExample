@@ -4,7 +4,7 @@
 
 Este projeto é um exemplo de uma API de lista de compras com o intuito de mostrar alguns conceitos de arquitetura de software, principalmente CQRS (Command and Query Responsibility Segregation).
 
-O servidor é uma ASP.NET Minimal API em .NET 9, com o mínimo possível de bibliotecas.
+O servidor é uma ASP.NET Minimal API em .NET 10, com o mínimo possível de bibliotecas.
 
 ## Padrões de arquitetura e conceitos de programação aplicados
 
@@ -21,7 +21,7 @@ Os links são para estudos e referências de conhecimento.
 
 ## Para executar o projeto
 
-O projeto requer apenas o [.NET 9](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória.
+O projeto requer apenas o [.NET 10](https://dotnet.microsoft.com/) instalado. A API usa um banco de dados em memória.
 
 O script `runserverlocal.ps1` compila o projeto e executa a API, ouvindo em `https://localhost:5001`.
 
