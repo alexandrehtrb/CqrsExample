@@ -77,7 +77,7 @@ jobs:
     - name: Generate SBOM file
       if: ${{ inputs.runCD }}
       shell: pwsh
-      run: dotnet CycloneDX ./src/CqrsExample.Api/CqrsExample.Api.csproj -o ./out/ -f sbom_api.json -sv $env:VERSION_NAME --json
+      run: dotnet CycloneDX ./src/CqrsExample.Api/CqrsExample.Api.csproj -o ./out/ -fn sbom_api.json --output-format Json -sv $env:VERSION_NAME
 
     - name: Generate DLLs
       if: ${{ inputs.runCD }}
