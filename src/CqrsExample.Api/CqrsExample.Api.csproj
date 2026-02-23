@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>Enable</Nullable>
-    <ImplicitUsings>Enable</ImplicitUsings>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <PublishSingleFile>True</PublishSingleFile>
@@ -31,12 +27,12 @@
   <ItemGroup Condition="'$(PublishAot)' != 'True'">
     <!-- Serilog and OpenApi do not fully support NativeAOT yet, -->
     <!-- so we remove those libraries for this kind of compilation  -->
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="SerilogTracing" Version="2.3.1" />
-    <PackageReference Include="SerilogTracing.Expressions" Version="2.3.1" />
-    <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.9.0" />
+    <PackageReference Include="Serilog.AspNetCore"/>
+    <PackageReference Include="SerilogTracing"/>
+    <PackageReference Include="SerilogTracing.Expressions"/>
+    <PackageReference Include="SerilogTracing.Instrumentation.AspNetCore"/>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+    <PackageReference Include="Scalar.AspNetCore"/>
   </ItemGroup>
 
 </Project>

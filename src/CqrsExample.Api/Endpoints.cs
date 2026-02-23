@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 #if !NATIVEAOT
 using CqrsExample.Api.Configurations;
 using CqrsExample.Domain.Features.Shopping;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using static CqrsExample.Api.Configurations.OpenApiConfiguration;
 #endif

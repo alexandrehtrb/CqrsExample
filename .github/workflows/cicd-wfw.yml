@@ -51,7 +51,7 @@ jobs:
       run: dotnet test --no-build --configuration Release --nologo --verbosity quiet --filter FullyQualifiedName!~CqrsExample.Api.Tests --collect:"XPlat Code Coverage" --results-directory ./out/TestResults/
 
     - name: Report unit tests coverage
-      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.4
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
       with:
         reports: ./out/TestResults/**/coverage.cobertura.xml
         targetdir: ./out/TestResults

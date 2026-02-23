@@ -21,7 +21,7 @@ public sealed class IntegrationTest
         ShoppingList? sl;
         Guid createdListId;
 
-        var resCreate = await this.pororocaTest.SendHttpRequestAsync("Create List");
+        var resCreate = await this.pororocaTest.SendHttpRequestAsync("Create List", TestContext.Current.CancellationToken);
 
         Assert.NotNull(resCreate);
         Assert.Equal(HttpStatusCode.Created, resCreate.StatusCode);
@@ -34,7 +34,7 @@ public sealed class IntegrationTest
         Assert.Empty(sl.Items);
         createdListId = sl.Id;
 
-        var resGet = await this.pororocaTest.SendHttpRequestAsync("Get List");
+        var resGet = await this.pororocaTest.SendHttpRequestAsync("Get List", TestContext.Current.CancellationToken);
 
         Assert.NotNull(resGet);
         Assert.Equal(HttpStatusCode.OK, resGet.StatusCode);
@@ -46,12 +46,12 @@ public sealed class IntegrationTest
         Assert.NotNull(sl.Items);
         Assert.Empty(sl.Items);
 
-        var resUpdate = await this.pororocaTest.SendHttpRequestAsync("Update List");
+        var resUpdate = await this.pororocaTest.SendHttpRequestAsync("Update List", TestContext.Current.CancellationToken);
 
         Assert.NotNull(resUpdate);
         Assert.Equal(HttpStatusCode.NoContent, resUpdate.StatusCode);
 
-        resGet = await this.pororocaTest.SendHttpRequestAsync("Get List");
+        resGet = await this.pororocaTest.SendHttpRequestAsync("Get List", TestContext.Current.CancellationToken);
 
         Assert.NotNull(resGet);
         Assert.Equal(HttpStatusCode.OK, resGet.StatusCode);
